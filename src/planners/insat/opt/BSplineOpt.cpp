@@ -1306,53 +1306,77 @@ namespace ps
                                               std::vector<BSplineTraj::TrajInstanceType> &traj_trace, int thread_id) const
     {
         BSplineTraj traj;
-        int lo = 0, hi = traj_trace.size() - 1;
-        int mid;
+        bool is_feasible = false;
 
-        MatDf samp_traj;
-        while (hi - lo > 1)
+        for (int i=0; i<traj_trace.size(); ++i)
         {
-          int mid = (hi + lo) / 2;
-
-          samp_traj = sampleTrajectory(traj_trace[mid]);
+          auto samp_traj = sampleTrajectory(traj_trace[i]);
           if (act->isFeasible(samp_traj, thread_id))
           {
-            lo = mid + 1;
+            traj.traj_ = traj_trace[i];
+            traj.disc_traj_ = samp_traj;
+            is_feasible = true;
           }
           else
           {
-            hi = mid;
+            break;
           }
         }
 
-        if (hi < lo)
+        if (!is_feasible)
         {
-            int temp = lo;
-            lo = hi;
-            hi = temp;
+          traj.result_ = TrajType::OptResultType();
+          traj.traj_ = TrajType::TrajInstanceType();
+          assert(traj.disc_traj_.size() == 0);
         }
+        return traj;
 
-        samp_traj = sampleTrajectory(traj_trace[hi]);
-        if (act->isFeasible(samp_traj, thread_id))
-        {
-            traj.traj_ = traj_trace[hi];
-            traj.disc_traj_ = samp_traj;
-            traj.story_ = "recovered from " + std::to_string(hi) + "/" + std::to_string(traj_trace.size()) + " ";
-            return traj;
-        }
-        samp_traj = sampleTrajectory(traj_trace[lo]);
-        if (act->isFeasible(samp_traj, thread_id))
-        {
-            traj.traj_ = traj_trace[lo];
-            traj.disc_traj_ = samp_traj;
-            traj.story_ = "recovered from " + std::to_string(hi) + "/" + std::to_string(traj_trace.size()) + " ";
-            return traj;
-        }
-
-      traj.result_ = TrajType::OptResultType();
-      traj.traj_ = TrajType::TrajInstanceType();
-      assert(traj.disc_traj_.size() == 0);
-      return traj;
+//        int lo = 0, hi = traj_trace.size() - 1;
+//        int mid;
+//        MatDf samp_traj;
+//        while (hi - lo > 1)
+//        {
+//          int mid = (hi + lo) / 2;
+//
+//          samp_traj = sampleTrajectory(traj_trace[mid]);
+//          if (act->isFeasible(samp_traj, thread_id))
+//          {
+//            lo = mid + 1;
+//          }
+//          else
+//          {
+//            hi = mid;
+//          }
+//        }
+//
+//        if (hi < lo)
+//        {
+//            int temp = lo;
+//            lo = hi;
+//            hi = temp;
+//        }
+//
+//        samp_traj = sampleTrajectory(traj_trace[hi]);
+//        if (act->isFeasible(samp_traj, thread_id))
+//        {
+//            traj.traj_ = traj_trace[hi];
+//            traj.disc_traj_ = samp_traj;
+//            traj.story_ = "recovered from " + std::to_string(hi) + "/" + std::to_string(traj_trace.size()) + " ";
+//            return traj;
+//        }
+//        samp_traj = sampleTrajectory(traj_trace[lo]);
+//        if (act->isFeasible(samp_traj, thread_id))
+//        {
+//            traj.traj_ = traj_trace[lo];
+//            traj.disc_traj_ = samp_traj;
+//            traj.story_ = "recovered from " + std::to_string(hi) + "/" + std::to_string(traj_trace.size()) + " ";
+//            return traj;
+//        }
+//
+//      traj.result_ = TrajType::OptResultType();
+//      traj.traj_ = TrajType::TrajInstanceType();
+//      assert(traj.disc_traj_.size() == 0);
+//      return traj;
     }
 
     MatDf BSplineOpt::postProcess(std::vector<PlanElement>& path, double& cost, double time_limit, const InsatAction* act) const {

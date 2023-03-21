@@ -52,8 +52,8 @@ namespace ps
             double max_duration_;
             ConstraintMode constraint_mode_;
 
-            double duration_cost_w_ = 1.0;
-            double length_cost_w_ = 0.1;
+            double duration_cost_w_ = 0.5;
+            double length_cost_w_ = 0.5;
 
             bool zero_vel_start_ = false;
             bool zero_vel_goal_ = false;
@@ -183,6 +183,10 @@ namespace ps
                                                    const BSplineTraj& t1,
                                                    const BSplineTraj& t2,
                                                    int thread_id) const;
+
+        int binarySearchRecoveryTrace(const InsatAction* act,
+                                      std::vector<BSplineTraj::TrajInstanceType>& traj_trace, int thread_id);
+
 
         /// Post processing
         MatDf postProcess(std::vector<PlanElement>& path, double& cost, double time_limit, const InsatAction* act) const;

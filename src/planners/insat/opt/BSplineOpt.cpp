@@ -1324,6 +1324,42 @@ namespace ps
         return optimizeWithInitAndCallback(act, q0, qF, init_guess, thread_id);
     }
 
+  int BSplineOpt::binarySearchRecoveryTrace(const InsatAction* act,
+                                            std::vector<BSplineTraj::TrajInstanceType> &traj_trace, int thread_id)
+  {
+    int lo = 0, hi = traj_trace.size() - 1;
+    int mid;
+
+    MatDf samp_traj;
+    while (hi - lo > 1)
+    {
+      int mid = (hi + lo) / 2;
+
+      samp_traj = sampleTrajectory(traj_trace[mid]);
+      if (act->isFeasible(samp_traj, thread_id))
+      {
+        lo = mid + 1;
+      }
+      else
+      {
+        hi = mid;
+      }
+    }
+
+    samp_traj = sampleTrajectory(traj_trace[hi]);
+    if (act->isFeasible(samp_traj, thread_id))
+    {
+      return hi;
+    }
+    samp_traj = sampleTrajectory(traj_trace[lo]);
+    if (act->isFeasible(samp_traj, thread_id))
+    {
+      return lo;
+    }
+
+    return -1;
+  }
+
     MatDf BSplineOpt::postProcess(std::vector<PlanElement>& path, double& cost, double time_limit, const InsatAction* act) const {
         MatDf disc_traj;
 

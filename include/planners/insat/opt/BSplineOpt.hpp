@@ -184,8 +184,8 @@ namespace ps
                                                    const BSplineTraj& t2,
                                                    int thread_id) const;
 
-        int binarySearchRecoveryTrace(const InsatAction* act,
-                                      std::vector<BSplineTraj::TrajInstanceType>& traj_trace, int thread_id);
+        BSplineTraj recoverTrajectory(const InsatAction* act,
+                                      std::vector<BSplineTraj::TrajInstanceType>& traj_trace, int thread_id) const;
 
 
         /// Post processing

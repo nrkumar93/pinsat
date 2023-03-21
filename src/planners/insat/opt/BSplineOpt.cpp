@@ -1114,18 +1114,7 @@ namespace ps
             {
                 /// re-solve with callback
                 std::vector<BSplineTraj::TrajInstanceType> traj_trace = optimizeWithCallback(opt, prog);
-                for (int i=traj_trace.size()-1; i>=0; --i)
-                {
-                    auto samp_traj = sampleTrajectory(traj_trace[i]);
-                    if (act->isFeasible(samp_traj, thread_id))
-                    {
-                        traj.traj_ = traj_trace[i];
-                        traj.disc_traj_ = samp_traj;
-                        traj.story_ = "recovered from " + std::to_string(i) + "/" + std::to_string(traj_trace.size()) + " ";
-                        is_feasible = true;
-                        break;
-                    }
-                }
+                return recoverTrajectory(act, traj_trace, thread_id);
             }
         }
 
@@ -1262,18 +1251,7 @@ namespace ps
             {
                 /// re-solve with callback
                 std::vector<BSplineTraj::TrajInstanceType> traj_trace = optimizeWithCallback(opt, prog);
-                for (int i=traj_trace.size()-1; i>=0; --i)
-                {
-                    auto samp_traj = sampleTrajectory(traj_trace[i]);
-                    if (act->isFeasible(samp_traj, thread_id))
-                    {
-                        traj.traj_ = traj_trace[i];
-                        traj.disc_traj_ = samp_traj;
-                        traj.story_ = "recovered from " + std::to_string(i) + "/" + std::to_string(traj_trace.size()) + " ";
-                        is_feasible = true;
-                        break;
-                    }
-                }
+                return recoverTrajectory(act, traj_trace, thread_id);
             }
         }
 
@@ -1324,9 +1302,10 @@ namespace ps
         return optimizeWithInitAndCallback(act, q0, qF, init_guess, thread_id);
     }
 
-  int BSplineOpt::binarySearchRecoveryTrace(const InsatAction* act,
-                                            std::vector<BSplineTraj::TrajInstanceType> &traj_trace, int thread_id)
+    BSplineTraj BSplineOpt::recoverTrajectory(const InsatAction* act,
+                                              std::vector<BSplineTraj::TrajInstanceType> &traj_trace, int thread_id) const
   {
+    BSplineTraj traj;
     int lo = 0, hi = traj_trace.size() - 1;
     int mid;
 
@@ -1346,18 +1325,34 @@ namespace ps
       }
     }
 
+    if (hi < lo)
+    {
+        int temp = lo;
+        lo = hi;
+        hi = temp;
+    }
+
     samp_traj = sampleTrajectory(traj_trace[hi]);
     if (act->isFeasible(samp_traj, thread_id))
     {
-      return hi;
+        traj.traj_ = traj_trace[hi];
+        traj.disc_traj_ = samp_traj;
+        traj.story_ = "recovered from " + std::to_string(hi) + "/" + std::to_string(traj_trace.size()) + " ";
+        return traj;
     }
     samp_traj = sampleTrajectory(traj_trace[lo]);
     if (act->isFeasible(samp_traj, thread_id))
     {
-      return lo;
+        traj.traj_ = traj_trace[lo];
+        traj.disc_traj_ = samp_traj;
+        traj.story_ = "recovered from " + std::to_string(hi) + "/" + std::to_string(traj_trace.size()) + " ";
+        return traj;
     }
 
-    return -1;
+      traj.result_ = TrajType::OptResultType();
+      traj.traj_ = TrajType::TrajInstanceType();
+      assert(traj.disc_traj_.size() == 0);
+      return traj;
   }
 
     MatDf BSplineOpt::postProcess(std::vector<PlanElement>& path, double& cost, double time_limit, const InsatAction* act) const {

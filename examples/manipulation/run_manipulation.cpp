@@ -785,8 +785,8 @@ int main(int argc, char* argv[])
     std::vector<vector<double>> starts, goals;
     if (load_starts_goals_from_file)
     {
-        std::string starts_path = "../examples/manipulation/resources/shield/starts.txt";
-        std::string goals_path = "../examples/manipulation/resources/shield/goals.txt";
+        std::string starts_path = "../examples/manipulation/resources/shield/radar_starts.txt";
+        std::string goals_path = "../examples/manipulation/resources/shield/radar_goals.txt";
         loadStartsAndGoalsFromFile(starts, goals, starts_path, goals_path);
     }
     else

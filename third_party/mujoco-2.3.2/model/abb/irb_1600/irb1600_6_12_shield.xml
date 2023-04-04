@@ -38,7 +38,7 @@
                 <geom type="mesh" rgba="0.9 0.9 0.9 1" mesh="base_link" contype="4" conaffinity="0"/>
                 <body name="link_1" pos="0 0 0">
                     <inertial pos="0.0444007 -0.00834001 0.340163" quat="0.575539 0.391509 0.239129 0.676973" mass="44.6131" diaginertia="1.4797 1.22366 0.686463" />
-                    <joint name="joint_1" pos="0 0 0" axis="0 0 1" limited="true" range="-3.14159 3.14159" />
+                    <joint name="joint_1" pos="0 0 0" axis="0 0 1" limited="true" range="-6.28318 6.28318" />
                     <geom type="mesh" rgba="0.9 0.9 0.9 1" mesh="link_1" contype="0" conaffinity="8"/>
                     <body name="link_2" pos="0.15 0 0.4865">
                         <inertial pos="-0.000162316 -0.181341 0.209041" quat="0.711714 -0.0257675 0.0284926 0.701418" mass="8.36275" diaginertia="0.278683 0.272236 0.0199549" />

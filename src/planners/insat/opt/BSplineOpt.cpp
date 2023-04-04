@@ -1011,6 +1011,12 @@ namespace ps
             dq0.setZero();
             opt.AddPathVelocityConstraint(dq0, dq0, 0); // Linear constraint
         }
+        else if (q0.isApprox(opt_params_.global_start_, 5e-3) && opt_params_.radar_mode_)
+        {
+          dq0.setZero();
+          dq0(0) = 2*M_PI;
+          opt.AddPathVelocityConstraint(dq0, dq0, 0); // Linear constraint
+        }
 
         /// Goal constraint
         opt.AddPathPositionConstraint(qF, qF, 1); // Linear constraint
@@ -1078,6 +1084,12 @@ namespace ps
         {
             dq0.setZero();
             opt.AddPathVelocityConstraint(dq0, dq0, 0); // Linear constraint
+        }
+        else if (q0.isApprox(opt_params_.global_start_, 5e-3) && opt_params_.radar_mode_)
+        {
+          dq0.setZero();
+          dq0(0) = 2*M_PI;
+          opt.AddPathVelocityConstraint(dq0, dq0, 0); // Linear constraint
         }
 
         /// Goal constraint
@@ -1162,6 +1174,12 @@ namespace ps
         {
             opt.AddPathVelocityConstraint(dq0, dq0, 0); // Linear constraint
         }
+        else if (opt_params_.radar_mode_)
+        {
+          dq0(0) = 2*M_PI;
+          opt.AddPathVelocityConstraint(dq0, dq0, 0); // Linear constraint
+        }
+
         /// Goal constraint
         opt.AddPathPositionConstraint(qF, qF, 1); // Linear constraint
         if (isGoal(qF) && opt_params_.zero_vel_goal_)
@@ -1228,6 +1246,12 @@ namespace ps
         {
             opt.AddPathVelocityConstraint(dq0, dq0, 0); // Linear constraint
         }
+        else if (opt_params_.radar_mode_)
+        {
+          dq0(0) = 2*M_PI;
+          opt.AddPathVelocityConstraint(dq0, dq0, 0); // Linear constraint
+        }
+
         /// Goal constraint
         opt.AddPathPositionConstraint(qF, qF, 1); // Linear constraint
         if (isGoal(qF) && opt_params_.zero_vel_goal_)

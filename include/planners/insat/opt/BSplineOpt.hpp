@@ -57,6 +57,7 @@ namespace ps
 
             bool zero_vel_start_ = false;
             bool zero_vel_goal_ = false;
+            bool radar_mode_ = true; ///
 
             /// Adaptive BSpline optimization
             int min_ctrl_points_;

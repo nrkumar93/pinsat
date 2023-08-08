@@ -2,6 +2,10 @@
     <compiler angle="radian" />
     <size njmax="500" nconmax="100" />
     <option collision="dynamic"/>
+    <visual>
+        <scale framewidth="0.01"/>
+    </visual>
+
     <asset>
         <mesh name="base_link" file="base_link.stl" />
         <mesh name="link_1" file="link_1.stl" />
@@ -32,19 +36,26 @@
         <light name="light3" diffuse=".5 .5 .5" pos="-1.5 -1.5 2" dir="1 1 -.5" castshadow="false" />
         <!-- Floor -->
         <geom name="floor" pos="0 0 0" size="5 5 .125" type="plane" material="BeigeMaterial" condim="3"  contype="0" conaffinity="0"/>
-        <!-- calibration target -->
-        <geom name="calib_target" pos="-0.9 0.9 0.4699" euler="0 0 0.785398" size=".15 .15 .15" rgba="1 1 0 .2" type="box" contype="0" conaffinity="0"/>
 
         <body name="pedestal" pos="0.0 0.0 0.4041">
+
+            <!-- sensor rig and camera mount -->
             <geom type="mesh" rgba="0 0 1 1" mesh="pedestal" euler="1.57 0 0" contype="1" conaffinity="1"/>
             <geom name="srig_n" type="box" pos="0 0.5588 0" size="0.5461 0.0127 0.0381" rgba="0.5 0.5 0.5 1"/>
             <geom name="srig_e" type="box" pos="0.5588 0 0" size="0.0127 0.5461 0.0381" rgba="0.5 0.5 0.5 1"/>
             <geom name="srig_s" type="box" pos="0 -0.5588 0" size="0.5461 0.0127 0.0381" rgba="0.5 0.5 0.5 1"/>
             <geom name="srig_w" type="box" pos="-0.5588 0 0" size="0.0127 0.5461 0.0381" rgba="0.5 0.5 0.5 1"/>
-            <geom name="cam1_support_n" type="box" pos="-0.4699 0.6731 0" size="0.0127 0.1016 0.0127" rgba="0.5 0.5 0.5 1"/>
-            <geom name="cam1_support_w" type="box" pos="-0.6731 0.4699 0" size="0.1016 0.0127 0.0127" rgba="0.5 0.5 0.5 1"/>
-            <geom name="cam1_mount" type="box" pos="-0.6223 0.6223 0.0381" size="0.2301875 0.0127 0.0127" euler="0 0 0.785398" rgba="0.5 0.5 0.5 1"/>
-            <geom name="cam1" type="mesh" pos="-0.6223 0.6223 0.0658" euler="0 0 0.785398" mesh="camera"/>
+            <geom name="cam1_support_n" type="box" pos="-0.4699 0.6731 -0.0254" size="0.0127 0.1016 0.0127" rgba="0.5 0.5 0.5 1"/>
+            <geom name="cam1_support_w" type="box" pos="-0.6731 0.4699 -0.0254" size="0.1016 0.0127 0.0127" rgba="0.5 0.5 0.5 1"/>
+            <geom name="cam1_support" type="box" pos="-0.6223 0.6223 0" size="0.2301875 0.0127 0.0127" euler="0 0 0.785398" rgba="0.5 0.5 0.5 1"/>
+
+            <body name="cam1_mount" pos="-0.6223 0.6223 0.04" euler="0 0 0.785398">
+                <geom name="cam1_mount" type="box" pos="0 0 0" size="0.0127 0.0127 0.04" rgba="0.5 0.5 0.5 1"/>
+                <geom name="cam1" type="mesh" pos="0 0 0.055" euler="0.523599 0 0" mesh="camera"/>
+                <!-- calibration target -->
+                <geom name="calib_target" pos="0 0.4 0.2" euler="0.523599 0 0" size=".15 .15 .15" rgba="1 1 0 .2" type="box" contype="0" conaffinity="0"/>
+            </body>
+
             <body name="base" pos="0.0 0.0 0.07847612194" euler="0 0 2.0944">
                 <geom type="mesh" rgba="0.9 0.9 0.9 1" mesh="base_link" contype="2" conaffinity="2"/>
                 <body name="link_1" pos="0 0 0">
@@ -75,11 +86,13 @@
                                             <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="adapter" contype="1" conaffinity="1"/>
                                             <body name="calibtool_p1" pos="0 0 0.019" euler="0 0 0.3926991">
                                                 <geom type="mesh" rgba="1.0 0 0 1" mesh="calibtool_p1" contype="1" conaffinity="1"/>
-                                                <body name="calibtool_p2" pos="0 0 0.1275">
+                                                <body name="calibtool_p2" pos="0 0 0.1325">
                                                     <geom type="mesh" rgba="1.0 0 0 1" mesh="calibtool_p2" contype="1" conaffinity="1"/>
-                                                    <site name="calibtool_center" euler="0 0 1.57"/>
                                                     <geom type="box" size="0.01 0.001 0.01" pos="0.01 0.0025 0" rgba="1 1 1 1" contype="1" conaffinity="1"/>
                                                     <geom type="box" size="0.01 0.001 0.01" pos="-0.01 0.0025 0" rgba="0 0 0 1" contype="1" conaffinity="1"/>
+
+                                                    <site name="calibtool_center" euler="0 0 1.57"/>
+                                                    <site name="poi" pos="0.035 0 -0.042" euler="0 0 1.57"/>
                                                 </body>
                                             </body>
                                         </body>

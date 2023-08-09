@@ -55,6 +55,7 @@
             <body name="cam1_mount" pos="-0.6223 0.6223 0.04" euler="0 0 0.785398">
                 <geom name="cam1_mount" type="box" pos="0 0 0" size="0.0127 0.0127 0.04" rgba="0.5 0.5 0.5 1"/>
                 <geom name="cam1" type="mesh" pos="0 0 0.055" euler="0.523599 0 0" mesh="camera"/>
+                <site name="cam1" pos="0 0 0.055" euler="0.523599 0 0"/>
                 <!-- calibration target -->
                 <site name="calib_target" pos="0 0.4 0.2" euler="0.523599 0 0" size=".15 .15 .15" rgba="1 1 0 .2" type="box"/>
             </body>

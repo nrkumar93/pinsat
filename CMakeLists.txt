@@ -54,6 +54,15 @@ set(SOURCES
     src/planners/insat/opt/BSplineOpt.cpp
 )
 
+add_library(manip_moveit_interface
+        examples/manipulation/utils.cpp
+        examples/manipulation/MoveitInterface.cpp)
+target_link_libraries(manip_moveit_interface
+        ${SBPL_LIBRARIES}
+        ${drake_LIBRARIES}
+        pthread)
+
+
 # EXECUTABLES
 add_executable(run_robot_nav_2d
         examples/robot_nav_2d/run_robot_nav_2d.cpp

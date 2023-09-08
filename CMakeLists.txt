@@ -29,7 +29,7 @@ include_directories(include
                     ${drake_INCLUDE_DIRS}
                     ${MUJOCO_INCLUDE_DIR})
 include_directories(/opt/drake/include)
-# include_directories(/home/shield/mambaforge/envs/ros_noetic/include)
+include_directories(/home/shield/mambaforge/envs/ros_noetic/include)
 
 link_directories(${SBPL_LIBRARY_DIRS})
 link_directories(${MUJOCO_LIB_DIR})

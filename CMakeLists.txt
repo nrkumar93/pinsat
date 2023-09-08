@@ -29,7 +29,7 @@ include_directories(include
                     ${drake_INCLUDE_DIRS}
                     ${MUJOCO_INCLUDE_DIR})
 include_directories(/opt/drake/include)
-include_directories(/home/shield/mambaforge/envs/ros_noetic/include)
+# include_directories(/home/shield/mambaforge/envs/ros_noetic/include)
 
 link_directories(${SBPL_LIBRARY_DIRS})
 link_directories(${MUJOCO_LIB_DIR})
@@ -117,3 +117,12 @@ target_link_libraries(domain_template
 add_executable(collfilter
         examples/manipulation/collision_filter_finder.cpp)
 
+install(
+        DIRECTORY include/common include/planners 
+        DESTINATION /usr/local/include/${PROJECT_NAME})
+# install(
+#         TARGETS smpl_ros
+#         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+            

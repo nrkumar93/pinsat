@@ -118,8 +118,13 @@ add_executable(collfilter
         examples/manipulation/collision_filter_finder.cpp)
 
 install(
-        DIRECTORY include/common include/planners 
+        DIRECTORY include/common include/planners
         DESTINATION /usr/local/include/${PROJECT_NAME})
+install(DIRECTORY examples/manipulation # source directory
+        DESTINATION /usr/local/include/${PROJECT_NAME} # target directory
+        FILES_MATCHING # install only matched files
+        PATTERN "*.hpp" # select header files
+)
 # install(
 #         TARGETS smpl_ros
 #         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

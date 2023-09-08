@@ -1,3 +1,6 @@
+# excluding calibration data
+scripts/camera_calibration/calib_data
+
 # Prerequisites
 *.d
 

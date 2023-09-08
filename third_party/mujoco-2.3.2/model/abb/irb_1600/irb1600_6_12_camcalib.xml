@@ -2,6 +2,10 @@
     <compiler angle="radian" />
     <size njmax="500" nconmax="100" />
     <option collision="dynamic"/>
+    <visual>
+        <scale framewidth="0.01"/>
+    </visual>
+
     <asset>
         <mesh name="base_link" file="base_link.stl" />
         <mesh name="link_1" file="link_1.stl" />
@@ -31,21 +35,35 @@
         <light name="light2" diffuse=".5 .5 .5" pos="1.5 -1.5 2"  dir="-1 1 -.5" castshadow="false" />
         <light name="light3" diffuse=".5 .5 .5" pos="-1.5 -1.5 2" dir="1 1 -.5" castshadow="false" />
         <!-- Floor -->
-        <geom name="floor" pos="0 0 0" size="5 5 .125" type="plane" material="BeigeMaterial" condim="3"  contype="0" conaffinity="0"/>
-        <!-- calibration target -->
-        <geom name="calib_target" pos="-0.9 0.9 0.4699" euler="0 0 0.785398" size=".15 .15 .15" rgba="1 1 0 .2" type="box" contype="0" conaffinity="0"/>
+        <!-- <geom name="floor" pos="0 0 0" size="5 5 .125" type="plane" material="BeigeMaterial" condim="3"  contype="0" conaffinity="0"/> -->
+
+        <!-- <site name="world"/> -->
+        <site name="test_site" euler="1.569934672850585 -0.3919026421668786 1.5711254334316775"/>
 
         <body name="pedestal" pos="0.0 0.0 0.4041">
+
+            <!-- sensor rig and camera mount -->
             <geom type="mesh" rgba="0 0 1 1" mesh="pedestal" euler="1.57 0 0" contype="1" conaffinity="1"/>
             <geom name="srig_n" type="box" pos="0 0.5588 0" size="0.5461 0.0127 0.0381" rgba="0.5 0.5 0.5 1"/>
             <geom name="srig_e" type="box" pos="0.5588 0 0" size="0.0127 0.5461 0.0381" rgba="0.5 0.5 0.5 1"/>
             <geom name="srig_s" type="box" pos="0 -0.5588 0" size="0.5461 0.0127 0.0381" rgba="0.5 0.5 0.5 1"/>
             <geom name="srig_w" type="box" pos="-0.5588 0 0" size="0.0127 0.5461 0.0381" rgba="0.5 0.5 0.5 1"/>
-            <geom name="cam1_support_n" type="box" pos="-0.4699 0.6731 0" size="0.0127 0.1016 0.0127" rgba="0.5 0.5 0.5 1"/>
-            <geom name="cam1_support_w" type="box" pos="-0.6731 0.4699 0" size="0.1016 0.0127 0.0127" rgba="0.5 0.5 0.5 1"/>
-            <geom name="cam1_mount" type="box" pos="-0.6223 0.6223 0.0381" size="0.2301875 0.0127 0.0127" euler="0 0 0.785398" rgba="0.5 0.5 0.5 1"/>
-            <geom name="cam1" type="mesh" pos="-0.6223 0.6223 0.0658" euler="0 0 0.785398" mesh="camera"/>
+            <geom name="cam1_support_n" type="box" pos="-0.4699 0.6731 -0.0254" size="0.0127 0.1016 0.0127" rgba="0.5 0.5 0.5 1"/>
+            <geom name="cam1_support_w" type="box" pos="-0.6731 0.4699 -0.0254" size="0.1016 0.0127 0.0127" rgba="0.5 0.5 0.5 1"/>
+            <geom name="cam1_support" type="box" pos="-0.6223 0.6223 0" size="0.2301875 0.0127 0.0127" euler="0 0 0.785398" rgba="0.5 0.5 0.5 1"/>
+
+            <body name="cam1_mount" pos="-0.6223 0.6223 0.04" euler="0 0 0.785398">
+                <geom name="cam1_mount" type="box" pos="0 0 0" size="0.0127 0.0127 0.04" rgba="0.5 0.5 0.5 1"/>
+<!--                 <geom name="cam1" type="mesh" pos="0 0 0.055" euler="0.523599 0 0" mesh="camera"/>
+                <site name="cam1" pos="0 0 0.055" euler="0.523599 0 0"/> -->
+                <geom name="real_cam1" type="mesh" pos="0 0 0.055" euler="0.018630 -0.44857 0." mesh="camera"/>
+                <site name="real_cam1" pos="0 0 0.055" euler="-1.117 0.01477 -1.323"/>
+                <!-- calibration target -->
+                <site name="calib_target" pos="0 0.4 0.2" euler="0.523599 0 0" size=".15 .15 .15" rgba="1 1 0 .2" type="box"/>
+            </body>
+
             <body name="base" pos="0.0 0.0 0.07847612194" euler="0 0 2.0944">
+                <site name="base"/>
                 <geom type="mesh" rgba="0.9 0.9 0.9 1" mesh="base_link" contype="2" conaffinity="2"/>
                 <body name="link_1" pos="0 0 0">
                     <inertial pos="0.0444007 -0.00834001 0.340163" quat="0.575539 0.391509 0.239129 0.676973" mass="44.6131" diaginertia="1.4797 1.22366 0.686463" />
@@ -68,6 +86,7 @@
                                     <joint name="joint_5" pos="0 0 0" axis="0 1 0" type="hinge" limited="true" range="-2.0071 2.0071" />
                                     <geom type="mesh" rgba="0.9 0.9 0.9 1" mesh="link_5" contype="1" conaffinity="1"/>
                                     <body name="link_6" pos="0.065 0 0">
+                                        <site name="ee"/>
                                         <inertial pos="-0.0164152 2.0728e-06 0.000267316" quat="0.502798 0.497187 0.497346 0.50264" mass="0.0748395" diaginertia="3.09311e-05 3.06155e-05 1.53407e-05" />
                                         <joint name="joint_6" pos="0 0 0" axis="1 0 0" type="hinge" limited="true" range="-6.9813 6.9813" />
                                         <geom type="mesh" rgba="0.9 0.9 0.9 1" mesh="link_6" contype="1" conaffinity="1"/>
@@ -75,11 +94,13 @@
                                             <geom type="mesh" rgba="0.1 0.1 0.1 1" mesh="adapter" contype="1" conaffinity="1"/>
                                             <body name="calibtool_p1" pos="0 0 0.019" euler="0 0 0.3926991">
                                                 <geom type="mesh" rgba="1.0 0 0 1" mesh="calibtool_p1" contype="1" conaffinity="1"/>
-                                                <body name="calibtool_p2" pos="0 0 0.1275">
+                                                <body name="calibtool_p2" pos="0 0 0.1325">
                                                     <geom type="mesh" rgba="1.0 0 0 1" mesh="calibtool_p2" contype="1" conaffinity="1"/>
-                                                    <site name="calibtool_center" euler="0 0 1.57"/>
                                                     <geom type="box" size="0.01 0.001 0.01" pos="0.01 0.0025 0" rgba="1 1 1 1" contype="1" conaffinity="1"/>
                                                     <geom type="box" size="0.01 0.001 0.01" pos="-0.01 0.0025 0" rgba="0 0 0 1" contype="1" conaffinity="1"/>
+
+                                                    <site name="calibtool_center" euler="0 0 1.57"/>
+                                                    <site name="poi" pos="0.035 0 -0.042" euler="0 0 1.57"/>
                                                 </body>
                                             </body>
                                         </body>
@@ -95,6 +116,7 @@
     </worldbody>
 
     <keyframe>
-        <key qpos='0.25136 1.3162 -0.659588 0.03491 0.94329 -1.11696'/>
+        <!-- <key qpos='0.25136 1.3162 -0.659588 0.03491 0.94329 -1.11696'/> -->
+        <key qpos='0.25136 1.3162 -0.659588 0.03491 0.22077 -1.95468'/>
     </keyframe>
 </mujoco>

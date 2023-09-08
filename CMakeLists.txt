@@ -1,12 +1,12 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.2)
 
-project (epase)
+project (parallel_search)
 add_compile_options(-std=c++17)
 
 list(APPEND CMAKE_PREFIX_PATH /opt/drake)
 list(APPEND CMAKE_PREFIX_PATH /opt/ros/noetic)
-set(MUJOCO_INCLUDE_DIR "/home/gaussian/cmu_ri_phd/phd_research/parallel_search/third_party/mujoco-2.3.2/include")
-set(MUJOCO_LIB_DIR "/home/gaussian/cmu_ri_phd/phd_research/parallel_search/third_party/mujoco-2.3.2/lib")
+set(MUJOCO_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/third_party/mujoco-2.3.2/include")
+set(MUJOCO_LIB_DIR "${CMAKE_SOURCE_DIR}/third_party/mujoco-2.3.2/lib")
 
 find_package(OpenCV REQUIRED)
 find_package(SBPL REQUIRED)
@@ -29,6 +29,7 @@ include_directories(include
                     ${drake_INCLUDE_DIRS}
                     ${MUJOCO_INCLUDE_DIR})
 include_directories(/opt/drake/include)
+include_directories(/home/shield/mambaforge/envs/ros_noetic/include)
 
 link_directories(${SBPL_LIBRARY_DIRS})
 link_directories(${MUJOCO_LIB_DIR})
@@ -115,3 +116,4 @@ target_link_libraries(domain_template
 
 add_executable(collfilter
         examples/manipulation/collision_filter_finder.cpp)
+

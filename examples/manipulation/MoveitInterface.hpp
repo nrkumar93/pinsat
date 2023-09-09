@@ -51,7 +51,7 @@ namespace ps {
 
   class ManipulationMoveitInterface {
 
-    void init(char* planner_name,
+    bool init(char* planner_name,
               std::string& model_dir,
               std::string& mprim_dir,
               int num_threads=1) {
@@ -158,6 +158,7 @@ namespace ps {
         std::shared_ptr<ManipulationAction> manip_action_ptr = std::dynamic_pointer_cast<ManipulationAction>(a);
         manip_action_ptrs.emplace_back(manip_action_ptr);
       }
+      return true;
     }
 
     bool solve(moveit_msgs::PlanningScene& planning_scene,
@@ -251,18 +252,18 @@ namespace ps {
       int num_edges=0;
 
       bool plan_found = planner_ptr->Plan();
-      auto planner_stats = planner_ptr->GetStats();
+      planner_stats_ = planner_ptr->GetStats();
 
-      std::cout << " | Time (s): " << planner_stats.total_time_
-           << " | Cost: " << planner_stats.path_cost_
-           << " | Length: " << planner_stats.path_length_
-           << " | State expansions: " << planner_stats.num_state_expansions_
-           << " | State expansions rate: " << planner_stats.num_state_expansions_/planner_stats.total_time_
-           << " | Lock time: " <<  planner_stats.lock_time_
-           << " | Expand time: " << planner_stats.cumulative_expansions_time_
-           << " | Threads: " << planner_stats.num_threads_spawned_ << "/" << planner_params_["num_threads"] << std::endl;
+      std::cout << " | Time (s): " << planner_stats_.total_time_
+                << " | Cost: " << planner_stats_.path_cost_
+                << " | Length: " << planner_stats_.path_length_
+                << " | State expansions: " << planner_stats_.num_state_expansions_
+                << " | State expansions rate: " << planner_stats_.num_state_expansions_ / planner_stats_.total_time_
+                << " | Lock time: " << planner_stats_.lock_time_
+                << " | Expand time: " << planner_stats_.cumulative_expansions_time_
+                << " | Threads: " << planner_stats_.num_threads_spawned_ << "/" << planner_params_["num_threads"] << std::endl;
 
-      for (auto& [action, times] : planner_stats.action_eval_times_)
+      for (auto& [action, times] : planner_stats_.action_eval_times_)
       {
         auto total_time = accumulate(times.begin(), times.end(), 0.0);
         std::cout << action << " mean time: " << total_time/times.size()
@@ -273,7 +274,7 @@ namespace ps {
       // cout << endl << "------------- Jobs per thread -------------" << endl;
       // for (int tidx = 0; tidx < planner_params["num_threads"]; ++tidx)
       // {
-      //     cout << "thread: " << tidx << " jobs: " << planner_stats.num_jobs_per_thread_[tidx] << endl;
+      //     cout << "thread: " << tidx << " jobs: " << planner_stats_.num_jobs_per_thread_[tidx] << endl;
       // }
       // cout << "************************" << endl;
       // getchar();
@@ -282,18 +283,18 @@ namespace ps {
       if (plan_found)
       {
 
-        time_vec.emplace_back(planner_stats.total_time_);
-        cost_vec.emplace_back(planner_stats.path_cost_);
-        num_edges_vec.emplace_back(planner_stats.num_evaluated_edges_);
+        time_vec.emplace_back(planner_stats_.total_time_);
+        cost_vec.emplace_back(planner_stats_.path_cost_);
+        num_edges_vec.emplace_back(planner_stats_.num_evaluated_edges_);
 
-        for (auto& [action, times] : planner_stats.action_eval_times_)
+        for (auto& [action, times] : planner_stats_.action_eval_times_)
         {
           action_eval_times[action].insert(action_eval_times[action].end(), times.begin(), times.end());
         }
 
-        threads_used_vec.emplace_back(planner_stats.num_threads_spawned_);
+        threads_used_vec.emplace_back(planner_stats_.num_threads_spawned_);
         for (int tidx = 0; tidx < planner_params_["num_threads"]; ++tidx) {
-          jobs_per_thread[tidx] += planner_stats.num_jobs_per_thread_[tidx];
+          jobs_per_thread[tidx] += planner_stats_.num_jobs_per_thread_[tidx];
         }
 
         std::cout << std::endl << "************************" << std::endl;
@@ -350,7 +351,7 @@ namespace ps {
 
           res.group_name = req.group_name;
           res.trajectory_start = req.start_state;
-          res.planning_time = planner_stats.total_time_;
+          res.planning_time = planner_stats_.total_time_;
           for (int i=0; i<samp_traj.cols(); ++i) {
             trajectory_msgs::JointTrajectoryPoint point;
             point.positions = std::vector<double>(samp_traj.col(i).data(), samp_traj.col(i).data()+config_.dof);
@@ -366,7 +367,7 @@ namespace ps {
           auto plan = planner_ptr->GetPlan();
           res.group_name = req.group_name;
           res.trajectory_start = req.start_state;
-          res.planning_time = planner_stats.total_time_;
+          res.planning_time = planner_stats_.total_time_;
           for (int i=0; i<plan.size(); ++i) {
             trajectory_msgs::JointTrajectoryPoint point;
             point.positions = plan[i].state_;
@@ -385,10 +386,41 @@ namespace ps {
       return false;
     }
 
+    /// @brief Return planning statistics from the last call to solve.
+    ///
+    /// Possible keys to statistics include:
+    ///     "initial solution planning time"
+    ///     "initial epsilon"
+    ///     "initial solution expansions"
+    ///     "final epsilon planning time"
+    ///     "final epsilon"
+    ///     "solution epsilon"
+    ///     "expansions"
+    ///     "solution cost"
+    ///
+    /// @return The statistics
+
+    std::map<std::string, double> getPlannerStats() {
+      std::map<std::string, double> stats;
+      stats["initial solution planning time"] = planner_stats_.total_time_;
+      stats["initial epsilon"] = planner_params_["heuristic_weight"];
+      stats["initial solution expansions"] = planner_stats_.num_state_expansions_;
+      stats["final epsilon planning time"] = planner_stats_.total_time_;
+      stats["time"] = planner_stats_.total_time_;
+      stats["final epsilon"] = planner_params_["heuristic_weight"];
+      stats["solution epsilon"] = planner_params_["heuristic_weight"];
+      stats["expansions"] = planner_stats_.num_state_expansions_;
+      stats["state_expansions"] = planner_stats_.num_state_expansions_;
+      stats["edge_expansions"] = planner_stats_.num_evaluated_edges_;
+      stats["solution cost"] = planner_stats_.path_cost_;
+      return stats;
+    }
+
   private:
     std::string planner_name_;
     ParamsType planner_params_;
     ParamsType action_params_;
+    PlannerStats planner_stats_;
 
     std::vector<std::shared_ptr<Action>> action_ptrs_;
     std::shared_ptr<ManipulationAction::OptVecType> opt_vec_ptr_;

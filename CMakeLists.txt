@@ -58,6 +58,7 @@ set(SOURCES
 add_library(manip_moveit_interface STATIC
         examples/manipulation/utils.cpp
         examples/manipulation/MoveitInterface.cpp
+        examples/manipulation/ManipulationActions.cpp
         examples/manipulation/bfs3d.cpp
         ${SOURCES})
 target_link_libraries(manip_moveit_interface

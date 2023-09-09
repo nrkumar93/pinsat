@@ -117,17 +117,22 @@ target_link_libraries(domain_template
 add_executable(collfilter
         examples/manipulation/collision_filter_finder.cpp)
 
-install(
-        DIRECTORY include/common include/planners
+install(DIRECTORY include/common include/planners
         DESTINATION /usr/local/include/${PROJECT_NAME})
 install(DIRECTORY examples/manipulation # source directory
         DESTINATION /usr/local/include/${PROJECT_NAME} # target directory
         FILES_MATCHING # install only matched files
-        PATTERN "*.hpp" # select header files
+        PATTERN "*.hpp" # select header files)
+install(TARGETS manip_moveit_interface
+        EXPORT ${PROJECT_NAME}Config
+        ARCHIVE DESTINATION /usr/local/lib/${PROJECT_NAME}
+        LIBRARY DESTINATION /usr/local/lib/${PROJECT_NAME}
+        RUNTIME DESTINATION /usr/local/bin/${PROJECT_NAME})
+export(TARGETS manip_moveit_interface
+    NAMESPACE ${PROJECT_NAME}::
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
 )
-# install(
-#         TARGETS smpl_ros
-#         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-            
+install(EXPORT ${PROJECT_NAME}Config
+    DESTINATION /usr/local/lib/cmake/${PROJECT_NAME}
+    NAMESPACE ${PROJECT_NAME}::
+)

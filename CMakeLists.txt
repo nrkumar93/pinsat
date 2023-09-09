@@ -122,7 +122,7 @@ install(DIRECTORY include/common include/planners
 install(DIRECTORY examples/manipulation # source directory
         DESTINATION /usr/local/include/${PROJECT_NAME} # target directory
         FILES_MATCHING # install only matched files
-        PATTERN "*.hpp" # select header files)
+        PATTERN "*.hpp") # select header files
 install(TARGETS manip_moveit_interface
         EXPORT ${PROJECT_NAME}Config
         ARCHIVE DESTINATION /usr/local/lib/${PROJECT_NAME}
@@ -130,9 +130,7 @@ install(TARGETS manip_moveit_interface
         RUNTIME DESTINATION /usr/local/bin/${PROJECT_NAME})
 export(TARGETS manip_moveit_interface
     NAMESPACE ${PROJECT_NAME}::
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-)
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
 install(EXPORT ${PROJECT_NAME}Config
     DESTINATION /usr/local/lib/cmake/${PROJECT_NAME}
-    NAMESPACE ${PROJECT_NAME}::
-)
+    NAMESPACE ${PROJECT_NAME}::)

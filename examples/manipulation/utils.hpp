@@ -112,7 +112,9 @@ namespace ps {
     HeuristicMode h_mode = HeuristicMode::LOS;
     GoalCheckerMode goal_mode = GoalCheckerMode::CSPACE;
     PPMode pp_mode = PPMode::WAYPT;
-  } config_;
+  };
+
+  static Config config_;
 
   static double roundOff(double value, unsigned char prec)
   {

@@ -122,7 +122,7 @@ install(DIRECTORY include/common include/planners
 install(DIRECTORY examples/manipulation # source directory
         DESTINATION /usr/local/include/${PROJECT_NAME} # target directory
         FILES_MATCHING # install only matched files
-        PATTERN "*.hpp") # select header files
+        PATTERN "*.hpp" "*.h") # select header files
 install(TARGETS manip_moveit_interface
         EXPORT ${PROJECT_NAME}Config
         ARCHIVE DESTINATION /usr/local/lib/${PROJECT_NAME}

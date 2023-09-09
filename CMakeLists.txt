@@ -64,6 +64,7 @@ add_library(manip_moveit_interface STATIC
 target_link_libraries(manip_moveit_interface
         ${SBPL_LIBRARIES}
         ${drake_LIBRARIES}
+        mujoco
         pthread)
 
 

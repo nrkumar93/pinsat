@@ -37,18 +37,24 @@
 
 
 #include "utils.hpp"
+#include <boost/filesystem.hpp>
 
 // MoveIt
 #include <moveit_msgs/MotionPlanRequest.h>
 #include <moveit_msgs/MotionPlanResponse.h>
 #include <moveit_msgs/PlanningScene.h>
 
+namespace fs = boost::filesystem;
+
 namespace ps {
 
 
   class ManipulationMoveitInterface {
 
-    void init(char* planner_name, int num_threads=1) {
+    void init(char* planner_name,
+              std::string& model_dir,
+              std::string& mprim_dir,
+              int num_threads=1) {
 
 
       if (!strcmp(planner_name, "insat") &&
@@ -66,7 +72,7 @@ namespace ps {
 
 
       /// Load MuJoCo model
-      std::string modelpath = "../third_party/mujoco-2.3.2/model/abb/irb_1600/irb1600_6_12_realshield.xml";
+      std::string modelpath = (fs::path(model_dir)/fs::path("irb1600_6_12_realshield.xml")).string();
       mjModel *m = nullptr;
       mjData *d = nullptr;
 
@@ -127,16 +133,16 @@ namespace ps {
 
       // Construct actions
       action_params_["planner_type"] = planner_name_ == "insat" || planner_name_ == "pinsat" ? 1 : -1;
-      std::string mprimpath = "../examples/manipulation/resources/shield/irb1600_6_12.mprim";
+      std::string mprimpath = (fs::path(mprim_dir)/fs::path("irb1600_6_12.mprim")).string();
       constructActions(action_ptrs_, action_params_,
                        modelpath,
                        mprimpath,
                        opt_vec_ptr_, num_threads);
 
       // Construct BFS actions
-      std::string bfsmodelpath = "../third_party/mujoco-2.3.2/model/abb/irb_1600/realshield_bfs_heuristic.xml";
+      std::string bfsmodelpath = (fs::path(model_dir)/fs::path("realshield_bfs_heuristic.xml")).string();
       setupMujoco(&config_.global_bfs_m, &config_.global_bfs_d, bfsmodelpath);
-      std::string bfsmprimpath = "../examples/manipulation/resources/shield/bfs3d.mprim";
+      std::string bfsmprimpath = (fs::path(mprim_dir)/fs::path("bfs3d.mprim")).string();
       std::vector<std::shared_ptr<Action>> bfs_action_ptrs;
       // constructBFSActions(bfs_action_ptrs, action_params,
       //                    bfsmodelpath, bfsmprimpath, num_threads);

@@ -55,7 +55,7 @@ set(SOURCES
     src/planners/insat/opt/BSplineOpt.cpp
 )
 
-add_library(manip_moveit_interface
+add_library(manip_moveit_interface STATIC
         examples/manipulation/utils.cpp
         examples/manipulation/MoveitInterface.cpp)
 target_link_libraries(manip_moveit_interface

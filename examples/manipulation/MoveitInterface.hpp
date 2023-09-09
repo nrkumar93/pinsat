@@ -66,7 +66,7 @@ namespace ps {
 
 
       /// Load MuJoCo model
-      std::string modelpath = "../third_party/mujoco-2.3.2/model/abb/irb_1600/irb1600_6_12_shield.xml";
+      std::string modelpath = "../third_party/mujoco-2.3.2/model/abb/irb_1600/irb1600_6_12_realshield.xml";
       mjModel *m = nullptr;
       mjData *d = nullptr;
 
@@ -134,7 +134,7 @@ namespace ps {
                        opt_vec_ptr_, num_threads);
 
       // Construct BFS actions
-      std::string bfsmodelpath = "../third_party/mujoco-2.3.2/model/abb/irb_1600/shield_bfs_heuristic.xml";
+      std::string bfsmodelpath = "../third_party/mujoco-2.3.2/model/abb/irb_1600/realshield_bfs_heuristic.xml";
       setupMujoco(&config_.global_bfs_m, &config_.global_bfs_d, bfsmodelpath);
       std::string bfsmprimpath = "../examples/manipulation/resources/shield/bfs3d.mprim";
       std::vector<std::shared_ptr<Action>> bfs_action_ptrs;

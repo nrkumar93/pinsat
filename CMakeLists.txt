@@ -57,7 +57,8 @@ set(SOURCES
 
 add_library(manip_moveit_interface STATIC
         examples/manipulation/utils.cpp
-        examples/manipulation/MoveitInterface.cpp)
+        examples/manipulation/MoveitInterface.cpp
+        ${SOURCES})
 target_link_libraries(manip_moveit_interface
         ${SBPL_LIBRARIES}
         ${drake_LIBRARIES}

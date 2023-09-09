@@ -51,6 +51,8 @@ namespace ps {
 
   class ManipulationMoveitInterface {
 
+  public:
+
     bool init(char* planner_name,
               std::string& model_dir,
               std::string& mprim_dir,

@@ -49,11 +49,11 @@ namespace fs = boost::filesystem;
 namespace ps {
 
 
-  class ManipulationMoveitInterface {
+      class ManipulationMoveitInterface {
 
   public:
 
-    bool init(char* planner_name,
+    bool init(const char* planner_name,
               std::string& model_dir,
               std::string& mprim_dir,
               int num_threads=1) {

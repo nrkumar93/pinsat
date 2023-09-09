@@ -154,7 +154,7 @@ namespace ps {
       }
     }
 
-    void solve(moveit_msgs::PlanningScene& planning_scene,
+    bool solve(moveit_msgs::PlanningScene& planning_scene,
                moveit_msgs::MotionPlanRequest& req,
                moveit_msgs::MotionPlanResponse& res) {
       planner_params_["timeout"] = req.allowed_planning_time;
@@ -368,14 +368,15 @@ namespace ps {
             res.trajectory.joint_trajectory.points.push_back(point);
           }
         }
+        return true;
       }
       else
       {
         res.error_code.val = moveit_msgs::MoveItErrorCodes::PLANNING_FAILED;
         std::cout << " | Plan not found!" << std::endl;
+        return false;
       }
-      
-
+      return false;
     }
 
   private:

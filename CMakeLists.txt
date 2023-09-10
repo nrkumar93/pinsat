@@ -4,7 +4,7 @@ project (parallel_search)
 add_compile_options(-std=c++17)
 
 list(APPEND CMAKE_PREFIX_PATH /opt/drake)
-list(APPEND CMAKE_PREFIX_PATH /opt/ros/noetic)
+# list(APPEND CMAKE_PREFIX_PATH /opt/ros/noetic)  
 set(MUJOCO_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/third_party/mujoco-2.3.2/include")
 set(MUJOCO_LIB_DIR "${CMAKE_SOURCE_DIR}/third_party/mujoco-2.3.2/lib")
 set(fmt_DIR /home/shield/mambaforge/lib/cmake/fmt)
@@ -14,12 +14,11 @@ find_package(OpenCV REQUIRED)
 find_package(SBPL REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(drake REQUIRED)
+find_package(catkin REQUIRED)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
-
-add_compile_options(-std=c++17)
 
 set(CMAKE_CXX_FLAGS "-g")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -36,6 +35,15 @@ include_directories(/home/shield/mambaforge/envs/ros_noetic/include)
 link_directories(${SBPL_LIBRARY_DIRS})
 link_directories(${MUJOCO_LIB_DIR})
 #link_directories(/opt/drake/lib)
+
+catkin_package(
+    INCLUDE_DIRS
+        include 
+        examples
+    LIBRARIES
+        manip_moveit_interface 
+    CATKIN_DEPENDS
+    DEPENDS)
 
 set(SOURCES
     src/common/State.cpp 
@@ -64,6 +72,7 @@ add_library(manip_moveit_interface STATIC
         examples/manipulation/bfs3d.cpp
         ${SOURCES})
 target_link_libraries(manip_moveit_interface
+        ${catkin_LIBRARIES}
         ${SBPL_LIBRARIES}
         ${drake_LIBRARIES}
         mujoco

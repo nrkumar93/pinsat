@@ -7,6 +7,8 @@ list(APPEND CMAKE_PREFIX_PATH /opt/drake)
 list(APPEND CMAKE_PREFIX_PATH /opt/ros/noetic)
 set(MUJOCO_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/third_party/mujoco-2.3.2/include")
 set(MUJOCO_LIB_DIR "${CMAKE_SOURCE_DIR}/third_party/mujoco-2.3.2/lib")
+set(fmt_DIR /home/shield/mambaforge/lib/cmake/fmt)
+set(spdlog_DIR /usr/lib/x86_64-linux-gnu/cmake/spdlog)
 
 find_package(OpenCV REQUIRED)
 find_package(SBPL REQUIRED)

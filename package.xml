@@ -1,0 +1,18 @@
+<package format="2">
+    <name>parallel_search</name>
+    <version>0.0.0</version>
+    <description>Parallel Search Library</description>
+    <maintainer email="rnataraj@cs.cmu.edu">Ramkumar Natarajan</maintainer>
+    <license>BSD</license>
+
+    <!-- <buildtool_depend>cmake</buildtool_depend> -->
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <depend>boost</depend>
+    <depend>drake</depend>
+    <depend>eigen</depend>
+
+    <!-- <export>
+        <build_type>cmake</build_type>
+    </export> -->
+</package>

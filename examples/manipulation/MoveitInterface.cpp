@@ -34,4 +34,5 @@
 
 #include "MoveitInterface.hpp"
 
+ps::Config ps::ManipulationMoveitInterface::config_;
 

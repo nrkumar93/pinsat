@@ -20,6 +20,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+# set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "-g")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
 SET(CMAKE_C_FLAGS_RELEASE "-O3")
@@ -66,7 +67,7 @@ set(SOURCES
 )
 
 add_library(manip_moveit_interface STATIC
-        examples/manipulation/utils.cpp
+        # examples/manipulation/utils.cpp
         examples/manipulation/MoveitInterface.cpp
         examples/manipulation/ManipulationActions.cpp
         examples/manipulation/bfs3d.cpp

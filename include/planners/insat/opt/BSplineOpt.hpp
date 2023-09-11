@@ -55,7 +55,7 @@ namespace ps
             double duration_cost_w_ = 1.0;
             double length_cost_w_ = 0.1;
 
-            bool zero_vel_start_ = false;
+            bool zero_vel_start_ = true;
             bool zero_vel_goal_ = false;
 
             /// Adaptive BSpline optimization

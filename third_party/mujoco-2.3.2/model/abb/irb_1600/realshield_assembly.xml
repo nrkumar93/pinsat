@@ -1,0 +1,36 @@
+<mujoco model="realshield_assembly">
+
+    <body name="pedestal">
+
+        <!-- sensor rig and camera mount -->
+        <geom type="mesh" rgba="0 0 1 1" mesh="pedestal" euler="1.57 0 0" contype="1" conaffinity="1"/>
+        <geom name="srig_n" type="box" pos="0 0.5588 0" size="0.5461 0.0127 0.0381" rgba="0.5 0.5 0.5 1"/>
+        <geom name="srig_e" type="box" pos="0.5588 0 0" size="0.0127 0.5461 0.0381" rgba="0.5 0.5 0.5 1"/>
+        <geom name="srig_s" type="box" pos="0 -0.5588 0" size="0.5461 0.0127 0.0381" rgba="0.5 0.5 0.5 1"/>
+        <geom name="srig_w" type="box" pos="-0.5588 0 0" size="0.0127 0.5461 0.0381" rgba="0.5 0.5 0.5 1"/>
+        <geom name="cam1_support_n" type="box" pos="-0.4699 0.6731 -0.0254" size="0.0127 0.1016 0.0127" rgba="0.5 0.5 0.5 1"/>
+        <geom name="cam1_support_w" type="box" pos="-0.6731 0.4699 -0.0254" size="0.1016 0.0127 0.0127" rgba="0.5 0.5 0.5 1"/>
+        <geom name="cam1_support" type="box" pos="-0.6223 0.6223 0" size="0.2301875 0.0127 0.0127" euler="0 0 0.785398" rgba="0.5 0.5 0.5 1"/>
+
+        <site name="test_site" pos="-0.6223 0.6223 0.0" euler="0 0 0.785398"/>
+        <body name="cam1_mount" pos="-0.6223 0.6223 0.04" euler="0 0 0.785398">
+            <geom name="cam1_mount" type="box" pos="0 0 0" size="0.0127 0.0127 0.04" rgba="0.5 0.5 0.5 1"/>
+            <geom name="cam1" type="mesh" pos="0 0 0.055" euler="0.523599 0 0" mesh="camera"/>
+            <site name="cam1" pos="0 0 0.055" euler="0.523599 0 0"/>
+            <body name="lidar_array" pos="0 0 -0.04">
+                <geom name="lidar_stem" type="box" pos="0 0.3302 0" size="0.0127 0.3302 0.0127" rgba="0.5 0.5 0.5 1"/>
+
+                <geom name="lidar_support_1" type="box" pos="0 0.3048 0.0381" size="0.0127 0.0127 0.0254" rgba="0.5 0.5 0.5 1"/>
+                <body name="lidar_tip_1" pos="0 0.3048 0.0635">
+                    <geom name="lidar_w_bracket_1" type="mesh" mesh="lidar_w_bracket" rgba="0.8 0 0 1"/>
+                </body>
+                
+                <geom name="lidar_support_2" type="box" pos="0 0.6096 0.0381" size="0.0127 0.0127 0.0254" rgba="0.5 0.5 0.5 1"/>
+                <body name="lidar_tip_2" pos="0 0.6096 0.0635">
+                    <geom name="lidar_w_bracket_2" type="mesh" mesh="lidar_w_bracket" rgba="0.8 0 0 1"/>
+                </body>
+            </body>
+        </body>
+    </body>
+
+</mujoco>

@@ -31,17 +31,17 @@
     </asset>
     <worldbody>
         <!-- Lights -->
-<!--         <light name="light0" diffuse=".5 .5 .5" pos="1.5 1.5 2"   dir="-1 -1 -.5" castshadow="false" />
+        <light name="light0" diffuse=".5 .5 .5" pos="1.5 1.5 2"   dir="-1 -1 -.5" castshadow="false" />
         <light name="light1" diffuse=".5 .5 .5" pos="-1.5 1.5 2"  dir="1 -1 -.5" castshadow="false" />
         <light name="light2" diffuse=".5 .5 .5" pos="1.5 -1.5 2"  dir="-1 1 -.5" castshadow="false" />
-        <light name="light3" diffuse=".5 .5 .5" pos="-1.5 -1.5 2" dir="1 1 -.5" castshadow="false" /> -->
+        <light name="light3" diffuse=".5 .5 .5" pos="-1.5 -1.5 2" dir="1 1 -.5" castshadow="false" />
         <!-- Floor -->
         <geom name="floor" pos="0 0 0" size="5 5 .125" type="plane" material="BeigeMaterial" condim="3"  contype="0" conaffinity="0"/>
 
         <!-- <site name="world"/> -->
         <body name="obstacle" pos="0.0 0.0 0.4041">
 
-            <include file="realshield_obstacles.xml"/>
+            <include file="realshield_assembly.xml"/>
 
             <body name="base" pos="0.0 0.0 0.07847612194" euler="0 0 2.0944">
                 <site name="base"/>

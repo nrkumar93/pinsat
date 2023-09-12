@@ -19,7 +19,7 @@
     <worldbody>
         <!-- obstacles -->
         <body name="obstacle" pos="0.0 0.0 0.4041">
-            <include file="realshield_obstacles.xml"/>
+            <include file="realshield_assembly.xml"/>
         </body>
 
         <!-- env limits represented as with an outer dome -->

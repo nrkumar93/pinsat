@@ -44,9 +44,9 @@
         <body name="obstacle" pos="0.0 0.0 0.4041">
 
             <include file="realshield_assembly.xml"/>
-            <include file="shield_dome.xml"/>
 
             <body name="base" pos="0.0 0.0 0.07847612194" euler="0 0 2.0944">
+                <include file="shield_dome.xml"/>
                 <site name="base"/>
                 <geom type="mesh" rgba="0.9 0.9 0.9 1" mesh="base_link" contype="2" conaffinity="2"/>
                 <body name="link_1" pos="0 0 0">

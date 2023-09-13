@@ -1,4 +1,4 @@
 <mujoco model="realshield_obstacles">
     <geom name="c1" size="0.04 1.5" pos="-0.700 0.4 1.5" type="cylinder" rgba="1 0.725 0.725 1" contype="0" conaffinity="2"/>
-    <geom name="c2" size="0.04 1.5" pos="-0.2 0.85 1.5" type="cylinder" rgba="1 0.725 0.725 1" contype="0" conaffinity="2"/>
+    <geom name="c2" size="0.04 1.5" pos="-0.15 0.8 1.5" type="cylinder" rgba="1 0.725 0.725 1" contype="0" conaffinity="2"/>
 </mujoco>

@@ -41,6 +41,7 @@ set(SOURCES
     src/common/State.cpp 
     src/common/Edge.cpp
     src/common/insat/InsatEdge.cpp
+    src/common/insatxgcs/utils.cpp
     src/planners/Planner.cpp
     src/planners/BFSPlanner.cpp
     src/planners/WastarPlanner.cpp
@@ -53,8 +54,31 @@ set(SOURCES
     src/planners/RrtConnectPlanner.cpp
     src/planners/insat/PinsatPlanner.cpp
     src/planners/insat/InsatPlanner.cpp
+    src/planners/insat/INSATxGCS.cpp
     src/planners/insat/opt/DummyOpt.cpp
     src/planners/insat/opt/BSplineOpt.cpp
+    src/planners/insat/opt/GCSOpt.cpp
+)
+
+set(INSATxGCS_SOURCES
+        src/common/State.cpp
+        src/common/Edge.cpp
+        src/common/insat/InsatEdge.cpp
+        src/common/insatxgcs/utils.cpp
+        src/planners/Planner.cpp
+        src/planners/BFSPlanner.cpp
+        src/planners/WastarPlanner.cpp
+        src/planners/PwastarPlanner.cpp
+        src/planners/PasePlanner.cpp
+        src/planners/EpasePlanner.cpp
+        src/planners/GepasePlanner.cpp
+        src/planners/MplpPlanner.cpp
+        src/planners/RrtPlanner.cpp
+        src/planners/RrtConnectPlanner.cpp
+        src/planners/insat/PinsatPlanner.cpp
+        src/planners/insat/InsatPlanner.cpp
+        src/planners/insat/INSATxGCS.cpp
+        src/planners/insat/opt/GCSOpt.cpp
 )
 
 add_library(manip_moveit_interface STATIC
@@ -103,6 +127,26 @@ target_link_libraries(run_manipulation
         mujoco
         ${drake_LIBRARIES}
         pthread)
+
+add_executable(run_insatxgcs
+        examples/insatxgcs/run_insatxgcs.cpp
+        examples/insatxgcs/INSATxGCSAction.cpp
+        ${INSATxGCS_SOURCES})
+
+target_link_libraries(run_insatxgcs
+        ${drake_LIBRARIES}
+        pthread)
+
+
+add_executable(gcsopt_test
+        examples/insatxgcs/gcsopt_test.cpp
+        src/common/insatxgcs/utils.cpp
+        src/planners/insat/opt/GCSOpt.cpp)
+
+target_link_libraries(gcsopt_test
+        ${drake_LIBRARIES}
+        pthread)
+
 
 add_executable(drake_test
         examples/insat/opt/DrakeTest.cpp)

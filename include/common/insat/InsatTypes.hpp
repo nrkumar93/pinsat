@@ -8,6 +8,9 @@
 // Drake
 #include <drake/planning/trajectory_optimization/kinematic_trajectory_optimization.h>
 #include <drake/solvers/solve.h>
+#include <drake/common/trajectories/composite_trajectory.h>
+#include <drake/common/copyable_unique_ptr.h>
+
 
 #include <common/EigenTypes.h>
 
@@ -45,6 +48,26 @@ namespace ps
         MatDf disc_traj_;
 
         std::string story_;
+    };
+
+    struct GCSTraj
+    {
+      typedef drake::solvers::MathematicalProgramResult OptResultType;
+      typedef drake::trajectories::CompositeTrajectory<double> TrajInstanceType;
+
+      GCSTraj() : traj_(std::vector< drake::copyable_unique_ptr< drake::trajectories::Trajectory<double>>>()) {}
+      GCSTraj(TrajInstanceType traj, OptResultType result)
+        : result_(result),
+          traj_(traj) {}
+
+      inline long size() const {return disc_traj_.size();}
+      inline bool isValid() const {return result_.is_success();}
+
+      OptResultType result_;
+      TrajInstanceType traj_;
+      MatDf disc_traj_;
+
+      std::string story_;
     };
 
 }

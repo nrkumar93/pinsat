@@ -31,7 +31,8 @@ namespace ps
     typedef std::mutex LockType;
     typedef std::unordered_map<std::string, double> ParamsType;
 //    typedef MatDf TrajType;
-    typedef BSplineTraj TrajType;
+//    typedef BSplineTraj TrajType;
+    typedef GCSTraj TrajType;
 
     struct ActionSuccessor
     {

@@ -21,8 +21,7 @@ SET(CMAKE_C_FLAGS_RELEASE "-O3")
 
 include_directories(include
                     ${EIGEN3_INCLUDE_DIR}
-                    ${drake_INCLUDE_DIRS}
-                    ${MUJOCO_INCLUDE_DIR})
+                    ${drake_INCLUDE_DIRS})
 include_directories(/opt/drake/include)
 
 #link_directories(/opt/drake/lib)
@@ -33,19 +32,7 @@ set(INSATxGCS_SOURCES
         src/common/insat/InsatEdge.cpp
         src/common/insatxgcs/utils.cpp
         src/planners/Planner.cpp
-        src/planners/BFSPlanner.cpp
-        src/planners/WastarPlanner.cpp
-        src/planners/PwastarPlanner.cpp
-        src/planners/PasePlanner.cpp
-        src/planners/EpasePlanner.cpp
-        src/planners/GepasePlanner.cpp
-        src/planners/MplpPlanner.cpp
-        src/planners/RrtPlanner.cpp
-        src/planners/RrtConnectPlanner.cpp
-        src/planners/insat/PinsatPlanner.cpp
-        src/planners/insat/InsatPlanner.cpp
         src/planners/insat/INSATxGCS.cpp
-        src/planners/insat/PINSATxGCS.cpp
         src/planners/insat/opt/GCSOpt.cpp
 )
 

@@ -40,14 +40,7 @@
 #include <functional>
 #include <boost/functional/hash.hpp>
 #include <drake/math/matrix_util.h>
-#include <planners/insat/InsatPlanner.hpp>
 #include <planners/insat/INSATxGCS.hpp>
-#include <planners/insat/PinsatPlanner.hpp>
-#include <planners/RrtPlanner.hpp>
-#include <planners/RrtConnectPlanner.hpp>
-#include <planners/EpasePlanner.hpp>
-#include <planners/GepasePlanner.hpp>
-#include <planners/WastarPlanner.hpp>
 #include "INSATxGCSAction.hpp"
 #include <planners/insat/opt/GCSOpt.hpp>
 #include <common/insatxgcs/utils.hpp>
@@ -151,7 +144,7 @@ void constructActions(vector<shared_ptr<Action>>& action_ptrs,
                       INSATxGCSAction::OptVecPtrType& opt,
                       int num_threads)
 {
-  action_params["length"] = 1;
+//  action_params["length"] = 100;
   for (int i=0; i<=action_params["length"]; ++i)
   {
     auto insatxgcs_action = std::make_shared<INSATxGCSAction>(std::to_string(i),
@@ -167,22 +160,8 @@ void constructPlanner(string planner_name, shared_ptr<Planner>& planner_ptr,
                       vector<shared_ptr<Action>>& action_ptrs,
                       ParamsType& planner_params)
 {
-  if (planner_name == "epase")
-    planner_ptr = std::make_shared<EpasePlanner>(planner_params);
-  else if (planner_name == "gepase")
-    planner_ptr = std::make_shared<GepasePlanner>(planner_params);
-  else if (planner_name == "insat")
-    planner_ptr = std::make_shared<InsatPlanner>(planner_params);
-  else if (planner_name == "insatxgcs")
+  if (planner_name == "insatxgcs")
     planner_ptr = std::make_shared<INSATxGCS>(planner_params);
-  else if (planner_name == "pinsat")
-    planner_ptr = std::make_shared<PinsatPlanner>(planner_params);
-  else if (planner_name == "rrt")
-    planner_ptr = std::make_shared<RrtPlanner>(planner_params);
-  else if (planner_name == "rrtconnect")
-    planner_ptr = std::make_shared<RrtConnectPlanner>(planner_params);
-  else if (planner_name == "wastar")
-    planner_ptr = std::make_shared<WastarPlanner>(planner_params);
   else
     throw runtime_error("Planner type not identified!");
 

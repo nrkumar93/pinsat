@@ -137,7 +137,36 @@ namespace ps
 
   double INSATxGCSAction::getCost(const TrajType &traj, int thread_id) const
   {
-    return traj.result_.get_optimal_cost();
+//    return traj.result_.get_optimal_cost();
+
+    if (traj.size() == 0) {
+      auto disc_traj = sampleTrajectory(traj.traj_, 1e-2);
+      return calculateCost(disc_traj);
+    } else {
+      return calculateCost(traj.disc_traj_);
+    }
+    return calculateCost(traj.disc_traj_);
+  }
+
+  MatDf INSATxGCSAction::sampleTrajectory(const GCSTraj::TrajInstanceType &traj, double dt) const {
+    MatDf sampled_traj;
+    int i=0;
+    for (double t=0.0; t<=traj.end_time(); t+=dt)
+    {
+      sampled_traj.conservativeResize(traj.rows(), sampled_traj.cols()+1);
+      sampled_traj.col(i) = traj.value(t);
+      ++i;
+    }
+    return sampled_traj;
+  }
+
+  double INSATxGCSAction::calculateCost(const MatDf &disc_traj) const {
+    double cost = 0;
+    for (int i=0; i<disc_traj.cols()-1; ++i)
+    {
+      cost += (disc_traj.col(i+1)-disc_traj.col(i)).norm();
+    }
+    return cost;
   }
 
 

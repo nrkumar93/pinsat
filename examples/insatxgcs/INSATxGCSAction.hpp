@@ -92,6 +92,9 @@ namespace ps
                               int thread_id=0);
     double getCost(const TrajType& traj, int thread_id) const;
 
+    MatDf sampleTrajectory(const GCSTraj::TrajInstanceType &traj, double dt) const;
+    double calculateCost(const MatDf &disc_traj) const;
+
   protected:
     LockType lock_;
 

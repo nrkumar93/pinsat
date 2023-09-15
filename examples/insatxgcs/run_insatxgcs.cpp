@@ -359,25 +359,25 @@ int main(int argc, char* argv[])
   std::string starts_path ="../logs/" + planner_name + "_maze2d_starts.txt";
   std::string goals_path ="../logs/" + planner_name +"_maze2d_goals.txt";
 
-  auto opt = GCSOpt(regions, *edges_bw_regions,
-                    order, h_min, h_max, path_len_weight, time_weight,
-                    vel_lb, vel_ub, verbose);
-  auto opt_vec_ptr = std::make_shared<INSATxGCSAction::OptVecType>(num_threads, opt);
-
-  // Construct actions
-  ParamsType action_params;
-  action_params["planner_type"] = planner_name=="insat" || planner_name=="pinsat"? 1: -1;
-  vector<shared_ptr<Action>> action_ptrs;
-  constructActions(action_ptrs, action_params,
-                   *edges_bw_regions,
-                   opt_vec_ptr, num_threads);
-
-  std::vector<std::shared_ptr<INSATxGCSAction>> ixg_action_ptrs;
-  for (auto& a : action_ptrs)
-  {
-    std::shared_ptr<INSATxGCSAction> ixg_action_ptr = std::dynamic_pointer_cast<INSATxGCSAction>(a);
-    ixg_action_ptrs.emplace_back(ixg_action_ptr);
-  }
+//  auto opt = GCSOpt(regions, *edges_bw_regions,
+//                    order, h_min, h_max, path_len_weight, time_weight,
+//                    vel_lb, vel_ub, verbose);
+//  auto opt_vec_ptr = std::make_shared<INSATxGCSAction::OptVecType>(num_threads, opt);
+//
+//  // Construct actions
+//  ParamsType action_params;
+//  action_params["planner_type"] = planner_name=="insat" || planner_name=="pinsat"? 1: -1;
+//  vector<shared_ptr<Action>> action_ptrs;
+//  constructActions(action_ptrs, action_params,
+//                   *edges_bw_regions,
+//                   opt_vec_ptr, num_threads);
+//
+//  std::vector<std::shared_ptr<INSATxGCSAction>> ixg_action_ptrs;
+//  for (auto& a : action_ptrs)
+//  {
+//    std::shared_ptr<INSATxGCSAction> ixg_action_ptr = std::dynamic_pointer_cast<INSATxGCSAction>(a);
+//    ixg_action_ptrs.emplace_back(ixg_action_ptr);
+//  }
 
   int num_success = 0;
   vector<vector<PlanElement>> plan_vec;
@@ -386,6 +386,27 @@ int main(int argc, char* argv[])
   num_runs = starts.size();
   for (int run = run_offset; run < run_offset+num_runs; ++run)
   {
+
+    auto opt = GCSOpt(regions, *edges_bw_regions,
+                      order, h_min, h_max, path_len_weight, time_weight,
+                      vel_lb, vel_ub, verbose);
+    auto opt_vec_ptr = std::make_shared<INSATxGCSAction::OptVecType>(num_threads, opt);
+
+    // Construct actions
+    ParamsType action_params;
+    action_params["planner_type"] = planner_name=="insat" || planner_name=="pinsat"? 1: -1;
+    vector<shared_ptr<Action>> action_ptrs;
+    constructActions(action_ptrs, action_params,
+                     *edges_bw_regions,
+                     opt_vec_ptr, num_threads);
+
+    std::vector<std::shared_ptr<INSATxGCSAction>> ixg_action_ptrs;
+    for (auto& a : action_ptrs)
+    {
+      std::shared_ptr<INSATxGCSAction> ixg_action_ptr = std::dynamic_pointer_cast<INSATxGCSAction>(a);
+      ixg_action_ptrs.emplace_back(ixg_action_ptr);
+    }
+
     // Set goal conditions
     Eigen::VectorXd start_vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(starts[run].data(), starts[run].size());
     Eigen::VectorXd goal_vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(goals[run].data(), goals[run].size());
@@ -431,10 +452,12 @@ int main(int argc, char* argv[])
     std::cout << "start: ";
     for (double i: starts[run])
       std::cout << i << ' ';
+    std::cout << "start VId: " << start_vid.get_value();
     std::cout << std::endl;
     std::cout << "goal: ";
     for (double i: goals[run])
       std::cout << i << ' ';
+    std::cout << "goal VId: " << goal_vid.get_value();
     std::cout << std::endl;
 
 
@@ -544,6 +567,10 @@ int main(int argc, char* argv[])
     {
       cout << " | Plan not found!" << endl;
     }
+
+//    for (auto& op : *opt_vec_ptr) {
+//      op.CleanUp();
+//    }
 
 
     log_file << run << " "

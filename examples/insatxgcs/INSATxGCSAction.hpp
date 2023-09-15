@@ -42,8 +42,6 @@
 #include <common/robots/Abb.hpp>
 #include "planners/insat/opt/GCSOpt.hpp"
 
-// MuJoCo
-#include <mujoco/mujoco.h>
 
 namespace ps
 {

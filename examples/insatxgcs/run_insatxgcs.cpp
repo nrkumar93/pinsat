@@ -48,9 +48,7 @@
 #include <planners/EpasePlanner.hpp>
 #include <planners/GepasePlanner.hpp>
 #include <planners/WastarPlanner.hpp>
-#include <planners/BFSPlanner.hpp>
 #include "INSATxGCSAction.hpp"
-#include <mujoco/mujoco.h>
 #include <planners/insat/opt/GCSOpt.hpp>
 #include <common/insatxgcs/utils.hpp>
 

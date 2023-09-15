@@ -1,4 +1,7 @@
 <mujoco model="realshield_obstacles">
-    <geom name="c1" size="0.05 1.5" pos="-0.700 0.4 1.5" type="cylinder" rgba="1 0.725 0.725 1" contype="0" conaffinity="2"/>
-    <geom name="c2" size="0.05 1.5" pos="-0.15 0.7 1.5" type="cylinder" rgba="1 0.725 0.725 1" contype="0" conaffinity="2"/>
+    <!-- <geom name="c1" size="0.05 1.5" pos="-0.750 0.55 1.5" type="cylinder" rgba="1 0.725 0.725 1" contype="0" conaffinity="2"/> -->
+    <geom name="c2" size="0.05 1.5" pos="-0.4 0.7 1.5" type="cylinder" rgba="1 0.725 0.725 1" contype="0" conaffinity="2"/>
+    <site name="obs_ref" pos="-0.5461 0.5461 0.0"/>
+<!--     <site name="c1" pos="-0.700 0.4 0"/>
+    <site name="c2" pos="-0.15 0.7 0"/> -->
 </mujoco>

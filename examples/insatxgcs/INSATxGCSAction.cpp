@@ -46,6 +46,8 @@ namespace ps
     for (auto& e : edges_between_regions) {
       state_id_to_succ_id_[e->u().id().get_value()].push_back(e->v().id().get_value());
     }
+    path_length_weight_ = params_["path_length_weight"];
+    time_weight_ = params_["time_weight"];
   }
 
   bool INSATxGCSAction::CheckPreconditions(const StateVarsType& state)
@@ -139,13 +141,17 @@ namespace ps
   {
 //    return traj.result_.get_optimal_cost();
 
+
     if (traj.size() == 0) {
       auto disc_traj = sampleTrajectory(traj.traj_, 1e-2);
-      return calculateCost(disc_traj);
+      return calculateCost(disc_traj)*path_length_weight_ +
+             traj.traj_.end_time()*time_weight_;
     } else {
-      return calculateCost(traj.disc_traj_);
+      return calculateCost(traj.disc_traj_)*path_length_weight_ +
+              traj.traj_.end_time()*time_weight_;
     }
-    return calculateCost(traj.disc_traj_);
+    return calculateCost(traj.disc_traj_)*path_length_weight_ +
+           traj.traj_.end_time()*time_weight_;
   }
 
   MatDf INSATxGCSAction::sampleTrajectory(const GCSTraj::TrajInstanceType &traj, double dt) const {

@@ -139,12 +139,16 @@ double computeHeuristic(const StateVarsType& state_vars)
 }
 
 void constructActions(vector<shared_ptr<Action>>& action_ptrs,
+                      ParamsType& planner_params,
                       ParamsType& action_params,
                       const std::vector<std::pair<int, int>>& edges_between_regions,
                       INSATxGCSAction::OptVecPtrType& opt,
                       int num_threads)
 {
 //  action_params["length"] = 100;
+  action_params["path_length_weight"] = planner_params["path_length_weight"];
+  action_params["time_weight"] = planner_params["time_weight"];
+
   for (int i=0; i<=action_params["length"]; ++i)
   {
     auto insatxgcs_action = std::make_shared<INSATxGCSAction>(std::to_string(i),
@@ -281,14 +285,12 @@ int main(int argc, char* argv[])
   planner_params["num_threads"] = num_threads;
   planner_params["heuristic_weight"] = 10;
   planner_params["timeout"] = 50;
-  planner_params["adaptive_opt"] = 0;
-  planner_params["smart_opt"] = 1;
-  planner_params["min_exec_duration"] = 0.5;
-  planner_params["max_exec_duration"] = 0.9;
-  planner_params["num_ctrl_points"] = 7;
-  planner_params["min_ctrl_points"] = 4;
-  planner_params["max_ctrl_points"] = 7;
-  planner_params["spline_order"] = 4;
+  planner_params["num_positions"] = num_positions;
+  planner_params["order"] = order;
+  planner_params["h_min"] = h_min;
+  planner_params["h_max"] = h_max;
+  planner_params["path_length_weight"] = path_len_weight;
+  planner_params["time_weight"] = time_weight;
   planner_params["sampling_dt"] = 1e-2;
 
   ofstream log_file;
@@ -373,7 +375,7 @@ int main(int argc, char* argv[])
     ParamsType action_params;
     action_params["planner_type"] = planner_name=="insat" || planner_name=="pinsat"? 1: -1;
     vector<shared_ptr<Action>> action_ptrs;
-    constructActions(action_ptrs, action_params,
+    constructActions(action_ptrs, planner_params, action_params,
                      *edges_bw_regions,
                      opt_vec_ptr, num_threads);
 

@@ -99,6 +99,8 @@ namespace ps
     LockType lock_;
 
     VecDf goal_;
+    double path_length_weight_;
+    double time_weight_;
 
     /// Optimizer stuff
     OptVecPtrType opt_;

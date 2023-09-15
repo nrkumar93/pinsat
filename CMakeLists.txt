@@ -24,9 +24,7 @@ include_directories(include
                     ${drake_INCLUDE_DIRS}
                     ${MUJOCO_INCLUDE_DIR})
 include_directories(/opt/drake/include)
-include_directories(/home/shield/mambaforge/envs/ros_noetic/include)
 
-link_directories(${MUJOCO_LIB_DIR})
 #link_directories(/opt/drake/lib)
 
 set(INSATxGCS_SOURCES

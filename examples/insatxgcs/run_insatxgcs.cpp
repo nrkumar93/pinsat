@@ -233,7 +233,7 @@ MatDf sampleTrajectory(const drake::trajectories::CompositeTrajectory<double>& t
 
 int main(int argc, char* argv[])
 {
-  setenv("MOSEKLM_LICENSE_FILE", "/home/gaussian/Documents/softwares/mosektoolslinux64x86/mosek.lic", true);
+  setenv("MOSEKLM_LICENSE_FILE", "/Users/nolan/mosek/mosek.lic", true);
   auto lic = drake::solvers::MosekSolver::AcquireLicense();
 
   int num_threads;
@@ -256,8 +256,8 @@ int main(int argc, char* argv[])
   string planner_name = argv[1];
 
 
-  std::vector<HPolyhedron> regions = utils::DeserializeRegions("/home/gaussian/cmu_ri_phd/phd_research/temp_INSATxGCS/INSATxGCS-Planner/src/data/maze.csv");
-  auto edges_bw_regions = utils::DeserializeEdges("/home/gaussian/cmu_ri_phd/phd_research/temp_INSATxGCS/INSATxGCS-Planner/src/data/maze_edges.csv");
+  std::vector<HPolyhedron> regions = utils::DeserializeRegions("/Users/nolan/Desktop/INSATxGCS-Planner/comparison/data/2dmaze/regions.csv");
+  auto edges_bw_regions = utils::DeserializeEdges("/Users/nolan/Desktop/INSATxGCS-Planner/comparison/data/2dmaze/edges.csv");
 
   int num_positions = 2;
   rm::dof = num_positions;
@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
   double h_min = 1e-2;
   double h_max = 1;
   double path_len_weight = 5;
-  double time_weight = 5;
+  double time_weight = 0;
   Eigen::VectorXd vel_lb = -5 * Eigen::VectorXd::Ones(num_positions);
   Eigen::VectorXd vel_ub = 5 * Eigen::VectorXd::Ones(num_positions);
   bool verbose = false;
@@ -279,7 +279,7 @@ int main(int argc, char* argv[])
   // Define planner parameters
   ParamsType planner_params;
   planner_params["num_threads"] = num_threads;
-  planner_params["heuristic_weight"] = 10;
+  planner_params["heuristic_weight"] = 1;
   planner_params["timeout"] = 50;
   planner_params["adaptive_opt"] = 0;
   planner_params["smart_opt"] = 1;
@@ -516,6 +516,23 @@ int main(int argc, char* argv[])
         std::shared_ptr<INSATxGCS> ixg_planner = std::dynamic_pointer_cast<INSATxGCS>(planner_ptr);
         auto soln_traj = ixg_planner->getSolutionTraj();
 
+        // // print out (2dmaze) traj
+        // int N = 1000;
+        // double t_start = soln_traj.traj_.start_time();
+        // double t_end = soln_traj.traj_.end_time();
+        // double dt = (t_end-t_start)/N;
+        // std::cout << "x = [";
+        // for (double t=t_start; t<=t_end; t+=dt)
+        // {
+        //   std::cout << soln_traj.traj_.value(t)(0) << ", ";
+        // }
+        // std::cout << "]" << std::endl << "y = [";
+        // for (double t=t_start; t<=t_end; t+=dt)
+        // {
+        //   std::cout << soln_traj.traj_.value(t)(1) << ", ";
+        // }
+        // std::cout << "]" << std::endl;
+
         /// Saving sampled trajectory
         auto samp_traj = sampleTrajectory(soln_traj.traj_, planner_params["sampling_dt"]);
         traj_log.conservativeResize(insat_params.lowD_dims_, traj_log.cols()+samp_traj.cols());
@@ -549,15 +566,20 @@ int main(int argc, char* argv[])
 //      op.CleanUp();
 //    }
 
+    // planner_params["heuristic_weight"] *= 2;
 
     log_file << run << " "
              << planner_stats.total_time_ << " "
              << planner_stats.path_cost_<< " "
              << planner_stats.path_length_<< " "
+             << "-1 "   // num_regions_on_path
              << planner_stats.num_state_expansions_<< " "
              << planner_stats.num_evaluated_edges_<< " "
              << planner_stats.num_threads_spawned_<< " "
-             << exec_duration<< " "
+             << exec_duration<< " "   // aka trajectory duration
+             << "-1 "   // opt_prob_size
+             << "-1 "   // opt_num_costs
+             << "-1 "   // opt_num_constraints
              << endl;
   }
 
@@ -627,12 +649,12 @@ int main(int argc, char* argv[])
   cout << "Mean trajectory duration: " << roundOff(reduce(all_execution_time.begin(), all_execution_time.end())/double(all_execution_time.size()), 2) << endl;
   cout << endl << "************************" << endl;
 
-  cout << endl << "------------- Mean action eval times -------------" << endl;
-  for (auto [action, times] : all_action_eval_times)
-  {
-    cout << action << ": " << accumulate(times.begin(), times.end(), 0.0)/times.size() << endl;
-  }
-  cout << "************************" << endl;
+  // cout << endl << "------------- Mean action eval times -------------" << endl;
+  // for (auto [action, times] : all_action_eval_times)
+  // {
+  //   cout << action << ": " << accumulate(times.begin(), times.end(), 0.0)/times.size() << endl;
+  // }
+  // cout << "************************" << endl;
 
 }
 

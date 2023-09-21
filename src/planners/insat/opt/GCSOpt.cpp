@@ -113,7 +113,8 @@ ps::GCSOpt::GCSOpt(const std::vector<HPolyhedron> &regions,
   }
 
   num_positions_ = regions_cs[0]->ambient_dimension();
-  if (time_weight != 0) {
+//  if (time_weight != 0) {
+  if (true) { /// FIXME: Temporary hotfix by Ram. Setting enable_time_cost_=false is segfaulting.
     time_weight_ = time_weight;
     enable_time_cost_ = true;
   }

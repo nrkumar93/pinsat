@@ -237,7 +237,7 @@ MatDf sampleTrajectory(const drake::trajectories::CompositeTrajectory<double>& t
 
 int main(int argc, char* argv[])
 {
-  setenv("MOSEKLM_LICENSE_FILE", "/Users/nolan/mosek/mosek.lic", true);
+  setenv("MOSEKLM_LICENSE_FILE", "/home/gaussian/Documents/softwares/mosektoolslinux64x86/mosek.lic", true);
   auto lic = drake::solvers::MosekSolver::AcquireLicense();
 
   int num_threads;
@@ -260,8 +260,8 @@ int main(int argc, char* argv[])
   string planner_name = argv[1];
 
 
-  std::vector<HPolyhedron> regions = utils::DeserializeRegions("/Users/nolan/Desktop/INSATxGCS-Planner/comparison/data/2dmaze/regions.csv");
-  auto edges_bw_regions = utils::DeserializeEdges("/Users/nolan/Desktop/INSATxGCS-Planner/comparison/data/2dmaze/edges.csv");
+  std::vector<HPolyhedron> regions = utils::DeserializeRegions("/home/gaussian/cmu_ri_phd/phd_research/temp_INSATxGCS/INSATxGCS-Planner/src/data/maze.csv");
+  auto edges_bw_regions = utils::DeserializeEdges("/home/gaussian/cmu_ri_phd/phd_research/temp_INSATxGCS/INSATxGCS-Planner/src/data/maze_edges.csv");
 
   int num_positions = 2;
   rm::dof = num_positions;
@@ -283,7 +283,7 @@ int main(int argc, char* argv[])
   // Define planner parameters
   ParamsType planner_params;
   planner_params["num_threads"] = num_threads;
-  planner_params["heuristic_weight"] = 1;
+  planner_params["heuristic_weight"] = 10;
   planner_params["timeout"] = 50;
   planner_params["num_positions"] = num_positions;
   planner_params["order"] = order;

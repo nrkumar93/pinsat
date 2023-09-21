@@ -61,16 +61,13 @@ namespace ps
       throw std::runtime_error("State " + std::to_string(static_cast<int>(state_vars[0])) + " not found in successor map!!");
     }
 
-    std::vector<std::pair<StateVarsType, double>> successor_state_vars_costs;
-    for (auto succ_id : state_id_to_succ_id_[static_cast<int>(state_vars[0])]) {
+    int idx = std::stoi(type_);
+    if (state_id_to_succ_id_[static_cast<int>(state_vars[0])].size() > idx) {
       StateVarsType succ;
-      succ.push_back(succ_id);
-      successor_state_vars_costs.emplace_back(succ, 1.0);
+      succ.push_back(state_id_to_succ_id_[static_cast<int>(state_vars[0])][idx]);
+      return ActionSuccessor(true, {std::make_pair(succ, 1.0)});
     }
-    if (successor_state_vars_costs.size()==0) {
-      throw std::runtime_error("No successor!");
-    }
-    return ActionSuccessor(true, successor_state_vars_costs);
+    return ActionSuccessor(false, {make_pair(StateVarsType(), -DINF)});
   }
 
   ActionSuccessor INSATxGCSAction::GetSuccessorLazy(const StateVarsType& state_vars, int thread_id)

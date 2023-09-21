@@ -149,7 +149,7 @@ void constructActions(vector<shared_ptr<Action>>& action_ptrs,
   action_params["path_length_weight"] = planner_params["path_length_weight"];
   action_params["time_weight"] = planner_params["time_weight"];
 
-  for (int i=0; i<=action_params["length"]; ++i)
+  for (int i=0; i<action_params["length"]; ++i)
   {
     auto insatxgcs_action = std::make_shared<INSATxGCSAction>(std::to_string(i),
                                                               action_params,
@@ -263,6 +263,16 @@ int main(int argc, char* argv[])
   std::vector<HPolyhedron> regions = utils::DeserializeRegions("/home/gaussian/cmu_ri_phd/phd_research/temp_INSATxGCS/INSATxGCS-Planner/src/data/maze.csv");
   auto edges_bw_regions = utils::DeserializeEdges("/home/gaussian/cmu_ri_phd/phd_research/temp_INSATxGCS/INSATxGCS-Planner/src/data/maze_edges.csv");
 
+  std::unordered_map<int, std::vector<int>> state_id_to_succ_id_;
+  for (auto& e : *edges_bw_regions) {
+    state_id_to_succ_id_[e.first].push_back(e.second);
+  }
+  int graph_degree = 0;
+  for (auto& sid : state_id_to_succ_id_) {
+    graph_degree = std::max(static_cast<int>(sid.second.size()), graph_degree);
+  }
+  std::cout << "Graph degree is: " << graph_degree << std::endl;
+
   int num_positions = 2;
   rm::dof = num_positions;
   int order = 3;
@@ -374,6 +384,7 @@ int main(int argc, char* argv[])
     // Construct actions
     ParamsType action_params;
     action_params["planner_type"] = planner_name=="insat" || planner_name=="pinsat"? 1: -1;
+    action_params["length"] = graph_degree;
     vector<shared_ptr<Action>> action_ptrs;
     constructActions(action_ptrs, planner_params, action_params,
                      *edges_bw_regions,

@@ -148,10 +148,11 @@ namespace ps
       {
         // Evaluate the edge
         auto action_successor = action_ptr->GetSuccessor(state_ptr->GetStateVars());
-        for (auto& succ : action_successor.successor_state_vars_costs_) {
-          auto as = ActionSuccessor(true, {succ});
-          updateState(state_ptr, ancestors, action_ptr, as);
-        }
+        updateState(state_ptr, ancestors, action_ptr, action_successor);
+//        for (auto& succ : action_successor.successor_state_vars_costs_) {
+//          auto as = ActionSuccessor(true, {succ});
+//          updateState(state_ptr, ancestors, action_ptr, as);
+//        }
       }
     }
   }

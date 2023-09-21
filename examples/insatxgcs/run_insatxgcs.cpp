@@ -141,7 +141,6 @@ double computeHeuristic(const StateVarsType& state_vars)
 void constructActions(vector<shared_ptr<Action>>& action_ptrs,
                       ParamsType& planner_params,
                       ParamsType& action_params,
-                      const std::vector<std::pair<int, int>>& edges_between_regions,
                       INSATxGCSAction::OptVecPtrType& opt,
                       int num_threads)
 {
@@ -263,16 +262,6 @@ int main(int argc, char* argv[])
   std::vector<HPolyhedron> regions = utils::DeserializeRegions("/home/gaussian/cmu_ri_phd/phd_research/temp_INSATxGCS/INSATxGCS-Planner/src/data/maze.csv");
   auto edges_bw_regions = utils::DeserializeEdges("/home/gaussian/cmu_ri_phd/phd_research/temp_INSATxGCS/INSATxGCS-Planner/src/data/maze_edges.csv");
 
-  std::unordered_map<int, std::vector<int>> state_id_to_succ_id_;
-  for (auto& e : *edges_bw_regions) {
-    state_id_to_succ_id_[e.first].push_back(e.second);
-  }
-  int graph_degree = 0;
-  for (auto& sid : state_id_to_succ_id_) {
-    graph_degree = std::max(static_cast<int>(sid.second.size()), graph_degree);
-  }
-  std::cout << "Graph degree is: " << graph_degree << std::endl;
-
   int num_positions = 2;
   rm::dof = num_positions;
   int order = 3;
@@ -373,21 +362,32 @@ int main(int argc, char* argv[])
 
   int run_offset = 0;
   num_runs = starts.size();
-  for (int run = run_offset; run < run_offset+num_runs; ++run)
+  for (int run = run_offset; run < num_runs; ++run)
   {
 
     auto opt = GCSOpt(regions, *edges_bw_regions,
                       order, h_min, h_max, path_len_weight, time_weight,
                       vel_lb, vel_ub, verbose);
+
+    const auto& gcs_edges = opt.GetGCS()->Edges();
+    std::unordered_map<int, std::vector<int>> state_id_to_succ_id_;
+    for (auto& e : gcs_edges) {
+      state_id_to_succ_id_[e->u().id().get_value()].push_back(e->v().id().get_value());
+    }
+    int graph_degree = 0;
+    for (auto& sid : state_id_to_succ_id_) {
+      graph_degree = std::max(static_cast<int>(sid.second.size()), graph_degree);
+    }
+    std::cout << "Graph degree is: " << graph_degree << std::endl;
+
     auto opt_vec_ptr = std::make_shared<INSATxGCSAction::OptVecType>(num_threads, opt);
 
     // Construct actions
     ParamsType action_params;
     action_params["planner_type"] = planner_name=="insat" || planner_name=="pinsat"? 1: -1;
-    action_params["length"] = graph_degree;
+    action_params["length"] = graph_degree+1;
     vector<shared_ptr<Action>> action_ptrs;
     constructActions(action_ptrs, planner_params, action_params,
-                     *edges_bw_regions,
                      opt_vec_ptr, num_threads);
 
     std::vector<std::shared_ptr<INSATxGCSAction>> ixg_action_ptrs;

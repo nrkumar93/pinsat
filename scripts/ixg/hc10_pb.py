@@ -1,0 +1,111 @@
+
+import os
+import mujoco as mp
+from mujoco import MjData, MjModel
+import mujoco_viewer
+from time import sleep
+import numpy as np
+from numpy import genfromtxt
+
+# planner_name = 'test'
+planner_name = 'insat'
+# planner_name = 'pinsat'
+# planner_name = 'rrt'
+# planner_name = 'rrtconnect'
+# planner_name = 'epase'
+# planner_name = 'gepase'
+
+static_planner = True if not (planner_name=='insat' or planner_name=='pinsat' or planner_name=='test') else False
+
+if static_planner:
+  dt = 1e-2
+  # dt = 0.05
+  # dt = 6e-3
+else:
+  # dt = 6e-3
+  # dt = 5e-3
+  dt = 0.5
+  # dt = 1
+
+model_dir = '/home/gaussian/cmu_ri_phd/phd_research/INSATxGCS-Planner/models/mjcf/'
+# mjcf = 'hc10_multiple_arms_simple_collision.urdf'
+mjcf = 'hc10dtp_multiple_arms.xml'
+
+# traj_file = './data/insatxgcs_3hc10_traj.txt'
+traj_file = './data/3hc10dtp_collfree_configs.csv'
+traj = genfromtxt(traj_file, delimiter=',')
+
+# just using arm model for calculating ee traj
+arm_model = MjModel.from_xml_path(os.path.join(model_dir, mjcf))
+arm_data = MjData(arm_model)
+viewer = mujoco_viewer.MujocoViewer(arm_model, arm_data)
+
+# num_traj = np.shape(starts)[0]
+# ee_traj = np.zeros((np.shape(starts)[0],3))
+# for i in range(num_traj):
+#   arm_data.qpos[:] = goals[i,:]
+#
+#
+#   mp.mj_step(arm_model, arm_data)
+#   ee_traj[i,:] = arm_data.xpos[-1]
+
+def balltraj(end_pos, len, max_len, dx):
+  xy_end = np.array([end_pos[0], end_pos[1], 0])
+  u = end_pos/np.linalg.norm(xy_end)
+  ball_traj = np.tile(end_pos, [max_len, 1])
+  for i in range(len):
+    ball_traj[i] = end_pos + (len-i)*u*dx
+  quat_traj = np.tile([1,0,0,0], [max_len, 1])
+  ball_traj = np.hstack((ball_traj, quat_traj))
+  return ball_traj
+
+
+def upsampleTraj(traj, dx=0.1):
+  col = np.shape(traj)[1]
+  uptraj = np.empty((0, col))
+  for i in range(np.shape(traj)[0]-1):
+    if np.array_equal(traj[i,:], -1*np.ones((arm_model.nq,))):
+      uptraj = np.append(uptraj, traj[i,:][np.newaxis,:], axis=0)
+      continue
+    if np.array_equal(traj[i+1,:], -1*np.ones((arm_model.nq,))):
+      continue
+
+    x1 = traj[i,:]
+    x2 = traj[i+1,:]
+    dist = np.linalg.norm(x2-x1)
+    N = int(dist/dx)
+    samp = np.linspace(x1, x2, N)
+    uptraj = np.append(uptraj, samp, axis=0)
+
+  return uptraj
+
+if static_planner:
+  traj = upsampleTraj(traj, 0.1)
+
+skp = 0
+i=0
+while i <= np.shape(traj)[0]:
+  # if i == np.shape(traj)[0]:
+  #   i=0
+  #   continue
+  skp += 1
+  # if skp % 2 == 0:
+  #   continue
+
+  if np.array_equal(traj[i,:], -1*np.ones((arm_model.nq,))):
+    sleep(2)
+    i+=1
+    continue
+  if viewer.is_alive:
+    arm_data.qpos[:] = traj[i,:arm_model.nq]
+    # print(traj[i,:])
+    mp.mj_step(arm_model, arm_data)
+    viewer.render()
+    sleep(dt)
+  else:
+      break
+  i+=1
+
+# close
+viewer.close()
+

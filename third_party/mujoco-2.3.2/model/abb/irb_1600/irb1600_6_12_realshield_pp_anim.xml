@@ -36,7 +36,9 @@
         <light name="light2" diffuse=".5 .5 .5" pos="1.5 -1.5 2"  dir="-1 1 -.5" castshadow="false" />
         <light name="light3" diffuse=".5 .5 .5" pos="-1.5 -1.5 2" dir="1 1 -.5" castshadow="false" />
         <!-- Floor -->
-        <geom name="floor" pos="0 0 0" size="5 5 .125" type="plane" material="BeigeMaterial" condim="3"  contype="0" conaffinity="0"/>
+        <!-- <geom name="floor" pos="0 0 0" size="5 5 .125" type="plane" material="BeigeMaterial" condim="3"  contype="0" conaffinity="0"/> -->
+
+        <include file="realshield_obstacles.xml"/>
 
         <!-- <site name="world"/> -->
         <body name="obstacle" pos="0.0 0.0 0.4041">
@@ -84,6 +86,11 @@
             <include file="ghosts/irb1600_6_12_realshield_ghost_3.xml"/>
             <include file="ghosts/irb1600_6_12_realshield_ghost_4.xml"/>
             <include file="ghosts/irb1600_6_12_realshield_ghost_5.xml"/>
+            <include file="ghosts/irb1600_6_12_realshield_ghost_6.xml"/>
+            <include file="ghosts/irb1600_6_12_realshield_ghost_7.xml"/>
+            <include file="ghosts/irb1600_6_12_realshield_ghost_8.xml"/>
+            <include file="ghosts/irb1600_6_12_realshield_ghost_9.xml"/>
+            <include file="ghosts/irb1600_6_12_realshield_ghost_10.xml"/>
         </body>
 
     </worldbody>

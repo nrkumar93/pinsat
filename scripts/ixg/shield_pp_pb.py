@@ -3,7 +3,7 @@ import random
 import mujoco as mp
 from mujoco import MjData, MjModel
 import mujoco_viewer
-from time import sleep
+from time import sleep, time
 import numpy as np
 
 import pickle
@@ -11,7 +11,9 @@ import pickle
 nq = 6
 dt = 1e-2
 new_traj_dt = 1
-nviz = 5
+init_wait = 25
+nviz = 10
+zero_config = np.array([-0.5236, 0, 0, 0, 0, 0])
 
 model_dir = '/home/gaussian/cmu_ri_phd/phd_research/parallel_search/third_party/mujoco-2.3.2/model/abb/irb_1600/'
 mjcf = 'irb1600_6_12_realshield_pp_anim.xml'
@@ -22,7 +24,7 @@ arm_data = MjData(arm_model)
 viewer = mujoco_viewer.MujocoViewer(arm_model, arm_data)
 
 # Directory containing your files
-directory = '/home/gaussian/cmu_ri_phd/phd_research/parallel_search/logs/insat_logs_obs/paths_library/'
+directory = '/home/gaussian/cmu_ri_phd/phd_research/parallel_search/logs/insat_logs_1obs/logs/paths_library'
 
 # Prefix to filter files
 prefix = 'path_'
@@ -62,7 +64,8 @@ def padMultipleTrajectories(pp_traj):
     max_rows *= 2
 
     # Initialize the banded matrix with zeros
-    banded_matrix = np.zeros((N * max_rows, N * max_cols))
+    # banded_matrix = np.zeros((N * max_rows, N * max_cols))
+    banded_matrix = np.tile(zero_config, (N*max_rows, N))
 
     # Copy the elements from each input matrix to the banded matrix
     row_offset = 0
@@ -79,9 +82,16 @@ def padMultipleTrajectories(pp_traj):
 pp_traj = loadPathFromLib()
 banded_traj = padMultipleTrajectories(pp_traj)
 
+stt = time()
+while time()-stt < init_wait:
+    if viewer.is_alive:
+        arm_data.qpos[:] = np.tile(zero_config, nviz+1)
+        mp.mj_step(arm_model, arm_data)
+        viewer.render()
+        sleep(dt)
 
 for i in range(np.shape(banded_traj)[0]):
-    viz_traj = np.hstack((np.zeros(nq), banded_traj[i, :]))
+    viz_traj = np.hstack((zero_config, banded_traj[i, :]))
 
     if viewer.is_alive:
         arm_data.qpos[:] = viz_traj[:]

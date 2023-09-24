@@ -277,8 +277,8 @@ int main(int argc, char* argv[])
   int order = 3;
   double h_min = 1e-2;
   double h_max = 1;
-  double path_len_weight = 5;
-  double time_weight = 0;
+  double path_len_weight = 1;
+  double time_weight = 1;
   Eigen::VectorXd vel_lb = -5 * Eigen::VectorXd::Ones(num_positions);
   Eigen::VectorXd vel_ub = 5 * Eigen::VectorXd::Ones(num_positions);
   bool verbose = false;

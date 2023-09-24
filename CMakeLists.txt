@@ -32,7 +32,9 @@ set(INSATxGCS_SOURCES
         src/common/insat/InsatEdge.cpp
         src/common/insatxgcs/utils.cpp
         src/planners/Planner.cpp
+        src/planners/GepasePlanner.cpp
         src/planners/insat/INSATxGCS.cpp
+        src/planners/insat/pINSATxGCS.cpp
         src/planners/insat/opt/GCSOpt.cpp
 )
 

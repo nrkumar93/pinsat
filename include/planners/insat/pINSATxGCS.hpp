@@ -11,14 +11,14 @@
 namespace ps
 {
 
-  class PINSATxGCS : virtual public GepasePlanner, virtual public INSATxGCS
+  class pINSATxGCS : virtual public GepasePlanner, virtual public INSATxGCS
   {
   public:
     typedef smpl::intrusive_heap<InsatEdge, IsLesserEdge> EdgeQueueMinType;
     typedef smpl::intrusive_heap<InsatState, IsLesserState> BEType;
 
-    PINSATxGCS(ParamsType planner_params);
-    ~PINSATxGCS();
+    pINSATxGCS(ParamsType planner_params);
+    ~pINSATxGCS();
     bool Plan();
 
   protected:

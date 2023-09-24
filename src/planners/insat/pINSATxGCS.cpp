@@ -1,13 +1,13 @@
 #include <iostream>
 #include <algorithm>
-#include <planners/insat/PINSATxGCS.hpp>
+#include <planners/insat/pINSATxGCS.hpp>
 
 #define INDEPENDENCE_CHECK 0
 
 using namespace std;
 using namespace ps;
 
-PINSATxGCS::PINSATxGCS(ParamsType planner_params):
+pINSATxGCS::pINSATxGCS(ParamsType planner_params):
         GepasePlanner(planner_params),
         INSATxGCS(planner_params),
         Planner(planner_params)
@@ -15,12 +15,12 @@ PINSATxGCS::PINSATxGCS(ParamsType planner_params):
 
 }
 
-PINSATxGCS::~PINSATxGCS()
+pINSATxGCS::~pINSATxGCS()
 {
 
 }
 
-bool PINSATxGCS::Plan()
+bool pINSATxGCS::Plan()
 {
 
   initialize();
@@ -171,7 +171,7 @@ bool PINSATxGCS::Plan()
           if (thread_id >= num_threads_current)
           {
             if (VERBOSE) cout << "Spawning edge expansion thread " << thread_id << endl;
-            edge_expansion_futures_.emplace_back(async(launch::async, &PINSATxGCS::expandEdgeLoop, this, thread_id));
+            edge_expansion_futures_.emplace_back(async(launch::async, &pINSATxGCS::expandEdgeLoop, this, thread_id));
           }
           locker.lock();
           edge_expansion_vec_[thread_id] = curr_edge_ptr;
@@ -201,7 +201,7 @@ bool PINSATxGCS::Plan()
   return false;
 }
 
-void PINSATxGCS::initialize()
+void pINSATxGCS::initialize()
 {
   plan_.clear();
 
@@ -243,7 +243,7 @@ void PINSATxGCS::initialize()
 
 }
 
-void PINSATxGCS::expandEdgeLoop(int thread_id)
+void pINSATxGCS::expandEdgeLoop(int thread_id)
 {
   while (!terminate_)
   {
@@ -264,7 +264,7 @@ void PINSATxGCS::expandEdgeLoop(int thread_id)
   }
 }
 
-void PINSATxGCS::expand(InsatEdgePtrType edge_ptr, int thread_id)
+void pINSATxGCS::expand(InsatEdgePtrType edge_ptr, int thread_id)
 {
   planner_stats_.num_jobs_per_thread_[thread_id] +=1;
   auto t_start = chrono::steady_clock::now();
@@ -336,7 +336,7 @@ void PINSATxGCS::expand(InsatEdgePtrType edge_ptr, int thread_id)
   lock_.unlock();
 }
 
-void PINSATxGCS::expandEdge(InsatEdgePtrType insat_edge_ptr, int thread_id)
+void pINSATxGCS::expandEdge(InsatEdgePtrType insat_edge_ptr, int thread_id)
 {
 
   auto action_ptr = insat_edge_ptr->action_ptr_;
@@ -366,169 +366,95 @@ void PINSATxGCS::expandEdge(InsatEdgePtrType insat_edge_ptr, int thread_id)
 
     if (!successor_state_ptr->IsVisited())
     {
-
-      InsatStatePtrType best_anc;
       TrajType traj;
-      double cost = 0, inc_cost = 0;
-      bool root=true;
+      double cost = 0;
+      double inc_cost = 0;
+      InsatStatePtrType best_anc;
       auto ancestors = insat_edge_ptr->lowD_parent_state_ptr_->GetAncestors();
 
       lock_.unlock();
 
-      if (planner_params_["smart_opt"] == true)
+      std::vector<StateVarsType> anc_states;
+      for (auto& anc: ancestors)
       {
-        std::vector<StateVarsType> anc_states;
-        for (auto& anc: ancestors)
-        {
-          anc_states.emplace_back(anc->GetStateVars());
-        }
-
-        if (ancestors.front()->GetIncomingInsatEdgePtr()) /// When anc is not start
-        {
-          traj = action_ptr->optimize(ancestors.front()->GetIncomingInsatEdgePtr()->GetTraj(),
-                                      anc_states,
-                                      successor_state_ptr->GetStateVars(), thread_id);
-          inc_cost = action_ptr->getCost(traj) - action_ptr->getCost(
-                  ancestors.front()->GetIncomingInsatEdgePtr()->GetTraj());
-        }
-        else
-        {
-          traj = action_ptr->optimize(TrajType(),
-                                      anc_states,
-                                      successor_state_ptr->GetStateVars(), thread_id);
-          inc_cost = action_ptr->getCost(traj);
-        }
-        if (traj.isValid())
-        {
-          best_anc = start_state_ptr_;
-        }
+        anc_states.emplace_back(anc->GetStateVars());
       }
-      else
-      {
-        for (auto& anc: ancestors)
-        {
-          if (planner_params_["adaptive_opt"] == true)
-          {
-            if (anc->GetIncomingInsatEdgePtr()) /// When anc is not start
-            {
-              traj = action_ptr->optimize(anc->GetIncomingInsatEdgePtr()->GetTraj(),
-                                          anc->GetStateVars(),
-                                          successor_state_ptr->GetStateVars(), thread_id);
-              inc_cost = action_ptr->getCost(traj) - action_ptr->getCost(anc->GetIncomingInsatEdgePtr()->GetTraj());
-            }
-            else
-            {
-              traj = action_ptr->optimize(TrajType(),
-                                          anc->GetStateVars(),
-                                          successor_state_ptr->GetStateVars(), thread_id);
-              inc_cost = action_ptr->getCost(traj);
-            }
+      traj = action_ptr->optimize(anc_states, successor_state_ptr->GetStateVars(), thread_id);
 
-            if (traj.isValid())
-            {
-              best_anc = anc;
-              break;
-            }
+      lock_.lock();
+
+      if (!traj.isValid())
+      {
+        return;
+      }
+
+      cost = action_ptr->getCost(traj);
+      double new_g_val = cost;
+      inc_cost = insat_edge_ptr->lowD_parent_state_ptr_->GetIncomingInsatEdgePtr()?
+                 action_ptr->getCost(traj) - action_ptr->getCost(insat_edge_ptr->lowD_parent_state_ptr_->GetIncomingInsatEdgePtr()->GetTraj()):
+                 action_ptr->getCost(traj);
+
+      if (successor_state_ptr->GetGValue() > new_g_val)
+      {
+        best_anc = ancestors[0];
+
+        double h_val = successor_state_ptr->GetHValue();
+        if (h_val == -1)
+        {
+          h_val = computeHeuristic(successor_state_ptr);
+          successor_state_ptr->SetHValue(h_val);
+        }
+
+        if (h_val != DINF)
+        {
+          h_val_min_ = h_val < h_val_min_ ? h_val : h_val_min_;
+          successor_state_ptr->SetGValue(new_g_val); //
+          successor_state_ptr->SetFValue(new_g_val + heuristic_w_*h_val); //
+          successor_state_ptr->SetIncomingInsatEdgePtr(insat_edge_ptr);
+
+          auto edge_ptr = new Edge(insat_edge_ptr->lowD_parent_state_ptr_, action_ptr, successor_state_ptr);
+          edge_ptr->SetCost(inc_cost);
+          successor_state_ptr->SetIncomingEdgePtr(edge_ptr);
+
+          insat_edge_ptr->SetTraj(traj);
+          insat_edge_ptr->SetTrajCost(cost);
+          insat_edge_ptr->SetCost(cost);
+          if (isGoalState(successor_state_ptr))
+          {
+            insat_edge_ptr->SetTrajCost(0);
+            insat_edge_ptr->SetCost(0);
+            successor_state_ptr->SetFValue(0.0);
+          }
+
+          insat_edge_ptr->fullD_parent_state_ptr_ = best_anc;
+          // Insert poxy edge
+          auto edge_temp = Edge(successor_state_ptr, dummy_action_ptr_);
+          auto edge_key = getEdgeKey(&edge_temp);
+          auto it_edge = edge_map_.find(edge_key);
+          InsatEdgePtrType proxy_edge_ptr;
+
+          if (it_edge == edge_map_.end())
+          {
+            proxy_edge_ptr = new InsatEdge(successor_state_ptr, dummy_action_ptr_);
+            edge_map_.insert(std::make_pair(edge_key, proxy_edge_ptr));
           }
           else
           {
-            TrajType inc_traj = action_ptr->optimize(anc->GetStateVars(), successor_state_ptr->GetStateVars(), thread_id);
-            if (inc_traj.size() > 0)
-            {
-              inc_cost = action_ptr->getCost(inc_traj);
-              if (anc->GetIncomingInsatEdgePtr()) /// When anc is not start
-              {
-                traj = action_ptr->warmOptimize(anc->GetIncomingInsatEdgePtr()->GetTraj(), inc_traj, thread_id);
-              }
-              else
-              {
-                traj = action_ptr->warmOptimize(inc_traj, thread_id);
-              }
-
-              if (traj.isValid())
-              {
-                best_anc = anc;
-                break;
-              }
-            }
-            else
-            {
-              continue;
-            }
+            proxy_edge_ptr = dynamic_cast<InsatEdgePtrType>(it_edge->second);
           }
-        }
-      }
-      lock_.lock();
 
-//            if (traj.size() != 0)
-      if (traj.disc_traj_.cols()>2)
-      {
-        cost = action_ptr->getCost(traj);
-        double new_g_val = cost;
+          proxy_edge_ptr->expansion_priority_ = new_g_val + heuristic_w_*h_val;
 
-        if (successor_state_ptr->GetGValue() > new_g_val)
-        {
-
-          double h_val = successor_state_ptr->GetHValue();
-
-          if (h_val == -1)
+          if (edge_open_list_.contains(proxy_edge_ptr))
           {
-            h_val = computeHeuristic(successor_state_ptr);
-            successor_state_ptr->SetHValue(h_val);
+            edge_open_list_.decrease(proxy_edge_ptr);
           }
-
-          if (h_val != DINF)
+          else
           {
-            h_val_min_ = h_val < h_val_min_ ? h_val : h_val_min_;
-            successor_state_ptr->SetGValue(new_g_val);
-            successor_state_ptr->SetFValue(new_g_val + heuristic_w_*h_val);
-            successor_state_ptr->SetIncomingInsatEdgePtr(insat_edge_ptr);
-
-            auto edge_ptr = new Edge(insat_edge_ptr->parent_state_ptr_, action_ptr, successor_state_ptr);
-            edge_ptr->SetCost(inc_cost);
-            successor_state_ptr->SetIncomingEdgePtr(edge_ptr);
-
-            insat_edge_ptr->SetTraj(traj);
-            insat_edge_ptr->SetTrajCost(cost);
-            insat_edge_ptr->SetCost(cost);
-            if (isGoalState(successor_state_ptr))
-            {
-              insat_edge_ptr->SetTrajCost(0);
-              insat_edge_ptr->SetCost(0);
-              successor_state_ptr->SetFValue(0.0);
-            }
-            insat_edge_ptr->fullD_parent_state_ptr_ = best_anc;
-            // Insert poxy edge
-            auto edge_temp = Edge(successor_state_ptr, dummy_action_ptr_);
-            auto edge_key = getEdgeKey(&edge_temp);
-            auto it_edge = edge_map_.find(edge_key);
-            InsatEdgePtrType proxy_edge_ptr;
-
-            if (it_edge == edge_map_.end())
-            {
-              proxy_edge_ptr = new InsatEdge(successor_state_ptr, dummy_action_ptr_);
-              edge_map_.insert(make_pair(edge_key, proxy_edge_ptr));
-            }
-            else
-            {
-              proxy_edge_ptr = dynamic_cast<InsatEdgePtrType>(it_edge->second);
-            }
-
-            proxy_edge_ptr->expansion_priority_ = new_g_val + heuristic_w_*h_val;
-
-            if (edge_open_list_.contains(proxy_edge_ptr))
-            {
-              edge_open_list_.decrease(proxy_edge_ptr);
-            }
-            else
-            {
-              edge_open_list_.push(proxy_edge_ptr);
-            }
-
-            notifyMainThread();
-
+            edge_open_list_.push(proxy_edge_ptr);
           }
 
+          notifyMainThread();
         }
       }
     }
@@ -542,7 +468,7 @@ void PINSATxGCS::expandEdge(InsatEdgePtrType insat_edge_ptr, int thread_id)
 
 }
 
-void PINSATxGCS::exit()
+void pINSATxGCS::exit()
 {
   for (int thread_id = 0; thread_id < num_threads_-1; ++thread_id)
   {

@@ -41,6 +41,7 @@
 #include <boost/functional/hash.hpp>
 #include <drake/math/matrix_util.h>
 #include <planners/insat/INSATxGCS.hpp>
+#include <planners/insat/pINSATxGCS.hpp>
 #include "INSATxGCSAction.hpp"
 #include <planners/insat/opt/GCSOpt.hpp>
 #include <common/insatxgcs/utils.hpp>
@@ -107,9 +108,16 @@ size_t StateKeyGenerator(const StateVarsType& state_vars)
 
 size_t EdgeKeyGenerator(const EdgePtrType& edge_ptr)
 {
-  static std::hash<int> hasher;
-  return hasher(static_cast<int>(edge_ptr->parent_state_ptr_->GetStateVars()[0]));
-  throw std::runtime_error("EdgeKeyGenerator is wrong");
+  int controller_id;
+  auto action_ptr = edge_ptr->action_ptr_;
+
+  controller_id = std::stoi(action_ptr->GetType());
+
+  size_t seed = 0;
+  boost::hash_combine(seed, edge_ptr->parent_state_ptr_->GetStateID());
+  boost::hash_combine(seed, controller_id);
+
+  return seed;
 }
 
 double computeHeuristicStateToState(const StateVarsType& state_vars_1, const StateVarsType& state_vars_2)
@@ -165,6 +173,8 @@ void constructPlanner(string planner_name, shared_ptr<Planner>& planner_ptr,
 {
   if (planner_name == "insatxgcs")
     planner_ptr = std::make_shared<INSATxGCS>(planner_params);
+  else if (planner_name == "pixg")
+    planner_ptr = std::make_shared<pINSATxGCS>(planner_params);
   else
     throw runtime_error("Planner type not identified!");
 
@@ -246,7 +256,7 @@ int main(int argc, char* argv[])
     if (argc != 2) throw runtime_error("Format: run_robot_nav_2d insat");
     num_threads = 1;
   }
-  else if (!strcmp(argv[1], "pinsat") || !strcmp(argv[1], "rrt") || !strcmp(argv[1], "rrtconnect") || !strcmp(argv[1], "epase") || !strcmp(argv[1], "gepase"))
+  else if (!strcmp(argv[1], "pinsat") || !strcmp(argv[1], "pixg") || !strcmp(argv[1], "rrt") || !strcmp(argv[1], "rrtconnect") || !strcmp(argv[1], "epase") || !strcmp(argv[1], "gepase"))
   {
     if (argc != 3) throw runtime_error("Format: run_robot_nav_2d pinsat [num_threads]");
     num_threads = atoi(argv[2]);
@@ -364,11 +374,26 @@ int main(int argc, char* argv[])
   num_runs = starts.size();
   for (int run = run_offset; run < num_runs; ++run)
   {
+    /// Set start and goal
+    Eigen::VectorXd start_vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(starts[run].data(), starts[run].size());
+    Eigen::VectorXd goal_vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(goals[run].data(), goals[run].size());
 
+    /// Set up optimizer
     auto opt = GCSOpt(regions, *edges_bw_regions,
                       order, h_min, h_max, path_len_weight, time_weight,
                       vel_lb, vel_ub, verbose);
+    // Add start and goals to optimizer
+    VertexId start_vid = opt.AddStart(start_vec);
+    VertexId goal_vid = opt.AddGoal(goal_vec);
+    opt.FormulateAndSetCostsAndConstraints();
 
+    StateVarsType start;
+    start.push_back(start_vid.get_value());
+    rm::goal.clear();
+    rm::goal.push_back(goal_vid.get_value());
+    rm::goal_value = goal_vec;
+
+    // Get GCS edges and calculate graph degree
     const auto& gcs_edges = opt.GetGCS()->Edges();
     std::unordered_map<int, std::vector<int>> state_id_to_succ_id_;
     for (auto& e : gcs_edges) {
@@ -379,14 +404,15 @@ int main(int argc, char* argv[])
       graph_degree = std::max(static_cast<int>(sid.second.size()), graph_degree);
     }
     std::cout << "Graph degree is: " << graph_degree << std::endl;
-
+    /// Vectorize optimizer for multithreading
     auto opt_vec_ptr = std::make_shared<INSATxGCSAction::OptVecType>(num_threads, opt);
+    rm::viv = (*opt_vec_ptr)[0].GetVertexIdToVertexMap();
 
-    // Construct actions
+    /// Construct actions
     ParamsType action_params;
     action_params["planner_type"] = planner_name=="insat" || planner_name=="pinsat"? 1: -1;
     action_params["length"] = graph_degree+1;
-    vector<shared_ptr<Action>> action_ptrs;
+    std::vector<shared_ptr<Action>> action_ptrs;
     constructActions(action_ptrs, planner_params, action_params,
                      opt_vec_ptr, num_threads);
 
@@ -397,30 +423,11 @@ int main(int argc, char* argv[])
       ixg_action_ptrs.emplace_back(ixg_action_ptr);
     }
 
-    // Set goal conditions
-    Eigen::VectorXd start_vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(starts[run].data(), starts[run].size());
-    Eigen::VectorXd goal_vec = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(goals[run].data(), goals[run].size());
-
-    VertexId start_vid, goal_vid;
-    for (auto& op : *opt_vec_ptr)
-    {
-      start_vid = op.AddStart(start_vec);
-      goal_vid = op.AddGoal(goal_vec);
-      op.FormulateAndSetCostsAndConstraints();
-    }
-    StateVarsType start;
-    start.push_back(start_vid.get_value());
-    rm::goal.clear();
-    rm::goal.push_back(goal_vid.get_value());
-    rm::goal_value = goal_vec;
-
     for (auto& ixg_act : ixg_action_ptrs) {
       ixg_act->UpdateStateToSuccs();
     }
 
-    rm::viv = (*opt_vec_ptr)[0].GetVertexIdToVertexMap();
-
-    // Construct planner
+    /// Construct planner
     shared_ptr<Planner> planner_ptr;
     constructPlanner(planner_name, planner_ptr, action_ptrs, planner_params);
 
@@ -524,7 +531,7 @@ int main(int argc, char* argv[])
         goal_log.bottomRows(1) = gvec.transpose();
       }
 
-      if ((planner_name == "insat") || (planner_name == "pinsat") || (planner_name == "insatxgcs"))
+      if ((planner_name == "insat") || (planner_name == "pinsat") || (planner_name == "insatxgcs") || (planner_name == "pixg"))
       {
         std::shared_ptr<INSATxGCS> ixg_planner = std::dynamic_pointer_cast<INSATxGCS>(planner_ptr);
         auto soln_traj = ixg_planner->getSolutionTraj();
@@ -597,7 +604,7 @@ int main(int argc, char* argv[])
   }
 
   StateVarsType dummy_wp(6, -1);
-  if ((planner_name == "insat") || (planner_name == "pinsat") || (planner_name == "insatxgcs"))
+  if ((planner_name == "insat") || (planner_name == "pinsat") || (planner_name == "insatxgcs") || (planner_name == "pixg"))
   {
     /// Dump traj to file
     traj_log.transposeInPlace();
